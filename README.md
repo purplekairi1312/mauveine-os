@@ -39,12 +39,15 @@ Theme files after install:
 Your files, Flatpaks and settings stay as they are; nothing is reinstalled.
 
 ```sh
-# 1. switch to the image (first time only, unsigned)
-sudo bootc switch ghcr.io/purplekairi1312/mauveine-os:latest
+# 1. drop packages you layered yourself (skip if you never used rpm-ostree install)
+sudo rpm-ostree reset
+
+# 2. switch to the image (first time only, unsigned), then reboot
+sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/purplekairi1312/mauveine-os:latest
 systemctl reboot
 
-# 2. switch to the signed image, so later updates are verified
-sudo bootc switch --enforce-container-sigpolicy ghcr.io/purplekairi1312/mauveine-os:latest
+# 3. switch to the signed image, so later updates are verified, then reboot
+sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/purplekairi1312/mauveine-os:latest
 systemctl reboot
 ```
 
@@ -53,7 +56,7 @@ Updates then arrive like normal Bazzite updates.
 To go back to stock Bazzite at any time:
 
 ```sh
-sudo bootc switch --enforce-container-sigpolicy ghcr.io/ublue-os/bazzite-dx-nvidia:stable
+sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/ublue-os/bazzite-dx-nvidia:stable
 ```
 
 The previous version also stays in the boot menu after every update.
