@@ -1,5 +1,5 @@
 #!/bin/bash
-# nekozame-audio [bitwig] [reaper] [ardour] [lmms]
+# nekozame-audio [bitwig] [reaper] [ardour] [lmms] [renoise FILE.tar.gz]
 # one-time audio setup for your user:
 #   realtime priority for audio apps (realtime + audio groups, needs sudo)
 #   the daws you pick, from flathub, with free plugins built for each one's runtime
@@ -9,6 +9,9 @@
 #   reaper  reaper          paid (free evaluation)
 #   ardour  ardour          free
 #   lmms    lmms            free
+#   renoise renoise         paid (free demo): not on flathub, so download the linux
+#                           tarball (demo or your full version) from renoise.com and
+#                           pass it; it's installed natively into ~/.local
 # no arguments: asks which ones.
 set -euo pipefail
 
@@ -16,31 +19,56 @@ declare -A APP=([bitwig]=com.bitwig.BitwigStudio [reaper]=fm.reaper.Reaper
                 [ardour]=org.ardour.Ardour [lmms]=io.lmms.LMMS)
 PLUGINS="Dexed Cardinal Helm Geonkick Calf x42Plugins ZamPlugins DragonflyReverb Surge-XT"
 
-daws=("$@")
-if [ ${#daws[@]} -eq 0 ]; then
+daws=(); RENOISE_TAR=""
+while [ $# -gt 0 ]; do
+    if [ "$1" = renoise ]; then RENOISE_TAR="${2:-}"; shift $(( $# > 1 ? 2 : 1 ))
+    else daws+=("$1"); shift; fi
+done
+[ -z "$RENOISE_TAR" ] || [ -f "$RENOISE_TAR" ] || { echo "no such file: $RENOISE_TAR" >&2; exit 1; }
+if [ ${#daws[@]} -eq 0 ] && [ -z "$RENOISE_TAR" ]; then
     echo "which daws? (space separated)"
     echo "  bitwig (paid)  reaper (paid, free evaluation)  ardour (free)  lmms (free)"
+    echo "  (renoise: nekozame-audio renoise ~/Downloads/Renoise_*_Linux_x86_64.tar.gz)"
     read -r -p "> " -a daws
 fi
-for d in "${daws[@]}"; do
+for d in "${daws[@]+"${daws[@]}"}"; do
     [ -n "${APP[$d]:-}" ] || { echo "unknown daw: $d" >&2; exit 1; }
 done
 
 sudo usermod -aG realtime,audio "$USER"
 
 branches=()
-for d in "${daws[@]}"; do
+for d in "${daws[@]+"${daws[@]}"}"; do
     flatpak install -y --user flathub "${APP[$d]}"
     # plugins are flatpak extensions and must match the daw's runtime branch
     rt=$(flatpak info --user --show-runtime "${APP[$d]}")   # e.g. org.freedesktop.Platform/x86_64/25.08
     b=${rt##*/}; branches+=("${b##*-}")                    # kde's 5.15-25.08 -> 25.08
 done
-for b in $(printf '%s\n' "${branches[@]}" | sort -u); do
+for b in $(printf '%s\n' "${branches[@]+"${branches[@]}"}" | sort -u); do
     for p in $PLUGINS; do
         flatpak install -y --user flathub "org.freedesktop.LinuxAudio.Plugins.$p//$b" 2>/dev/null \
             || echo "($p isn't built for $b yet, skipped)"
     done
 done
+
+if [ -n "$RENOISE_TAR" ]; then
+    # renoise runs from its own folder; keep it in ~/.local/opt with a launcher
+    dest="$HOME/.local/opt"; mkdir -p "$dest" "$HOME/.local/bin" "$HOME/.local/share/applications"
+    top=$(tar -tzf "$RENOISE_TAR" | head -1 | cut -d/ -f1)
+    rm -rf "${dest:?}/$top"; tar -xzf "$RENOISE_TAR" -C "$dest"
+    bin=$(find "$dest/$top" -maxdepth 1 -type f -name 'renoise*' -perm -u+x | head -1)
+    ln -sf "$bin" "$HOME/.local/bin/renoise"
+    icon=$(find "$dest/$top" -name 'renoise.png' | head -1)
+    cat > "$HOME/.local/share/applications/renoise.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Renoise
+Exec=$HOME/.local/bin/renoise %f
+Icon=${icon:-audio-x-generic}
+Categories=AudioVideo;Audio;
+DESKTOP
+    echo "renoise installed: $bin"
+fi
 
 yabridgectl set --path=/usr/lib/yabridge
 # where windows plugin installers put things inside wine
