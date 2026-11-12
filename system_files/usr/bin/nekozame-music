@@ -1,104 +1,192 @@
 #!/bin/bash
-# nekozame-music [bitwig] [reaper] [ardour] [lmms] [renoise FILE.tar.gz]
-# music production for your user (the low-latency audio is already on for everyone):
-#   the daws you pick, from flathub, with open source plugins built for each one's
-#   runtime, carla (plugin host), and yabridge for windows plugins
-# daws:
-#   bitwig  bitwig studio   proprietary, paid
-#   reaper  reaper          proprietary, paid (free evaluation)
-#   ardour  ardour          open source (gpl), free
-#   lmms    lmms            open source (gpl), free
-#   renoise renoise         proprietary, paid (free demo): not on flathub, so download the linux
-#                           tarball (demo or your full version) from renoise.com and
-#                           pass it; it's installed natively into ~/.local
-# no arguments: asks which ones.
+# nekozame-music: music production. the low-latency audio is already on for
+# everyone; this adds what you pick, and run again it adds and removes to match.
+#   daws:
+#     bitwig studio  proprietary, paid       native, from bitwig.com, in ~/.local/opt
+#     reaper         proprietary, paid       native, from reaper.fm, in ~/.local/opt
+#                    (free evaluation)
+#     renoise        proprietary, paid       native, from the tarball you download from
+#                    (free demo)             renoise.com, in ~/.local/opt
+#     ardour         free software           fedora's
+#     lmms           free software           fedora's
+#   plugins and audio apps: a checklist of everything in audinux (a fedora repo of
+#   audio software, about 700), each with all its formats (clap, vst3, lv2, vst2,
+#   ladspa) so every daw finds it in the one it likes. carla (plugin host) and
+#   yabridge (microsoft windows plugins, through wine) come with it.
+# everything is native, not flatpak, so every daw sees every plugin: the image
+# links fedora's plugin folders to where all daws look (see build.sh). fedora
+# packages get layered onto the system (rpm-ostree): they need a reboot, and
+# updates take a bit longer the more you pick.
 set -euo pipefail
+D=/usr/share/nekozame-os/audinux
+CAT="$D/catalog.tsv"
+OPT="$HOME/.local/opt"
+mkdir -p "$OPT" "$HOME/.local/bin" "$HOME/.local/share/applications"
 
-declare -A APP=([bitwig]=com.bitwig.BitwigStudio [reaper]=fm.reaper.Reaper
-                [ardour]=org.ardour.Ardour [lmms]=io.lmms.LMMS)
-PLUGINS="Dexed Cardinal Helm Geonkick Calf LSP x42Plugins ZamPlugins DragonflyReverb Surge-XT"
-# renovate: datasource=github-releases depName=robbert-vdh/yabridge
-YABRIDGE=5.1.1
+# what's layered now (or waiting for the next boot)
+mapfile -t layered < <(rpm-ostree status --json | jq -r '.deployments[0]["requested-packages"][]?')
+is_layered() { printf '%s\n' "${layered[@]+"${layered[@]}"}" | grep -qx "$1"; }
 
-daws=(); RENOISE_TAR=""
-while [ $# -gt 0 ]; do
-    if [ "$1" = renoise ]; then RENOISE_TAR="${2:-}"; shift $(( $# > 1 ? 2 : 1 ))
-    else daws+=("$1"); shift; fi
-done
-[ -z "$RENOISE_TAR" ] || [ -f "$RENOISE_TAR" ] || { echo "no such file: $RENOISE_TAR" >&2; exit 1; }
-if [ ${#daws[@]} -eq 0 ] && [ -z "$RENOISE_TAR" ]; then
-    mapfile -t picked < <(gum choose --no-limit --header "Which DAWs? (space to pick, enter when done)" \
-        "bitwig (paid)" "reaper (paid, free evaluation)" "renoise (paid, free demo)" \
-        "ardour (free software)" "lmms (free software)")
-    for p in "${picked[@]+"${picked[@]}"}"; do
-        if [ "${p%% *}" = renoise ]; then
-            echo "renoise isn't on flathub: get the linux tarball (demo or full) from renoise.com"
-            RENOISE_TAR=$(gum input --placeholder "path to Renoise_*_Linux_x86_64.tar.gz (empty: skip)")
-            [ -z "$RENOISE_TAR" ] || [ -f "$RENOISE_TAR" ] || { echo "no such file: $RENOISE_TAR" >&2; exit 1; }
-        else
-            daws+=("${p%% *}")
-        fi
-    done
+### daws
+# no commas in these: gum separates ticked items with them
+BITWIG="Bitwig Studio (proprietary · paid)"
+REAPER="Reaper (proprietary · paid · free evaluation)"
+RENOISE="Renoise (proprietary · paid · free demo)"
+ARDOUR="Ardour (free software)"
+LMMS="LMMS (free software)"
+had=()
+if [ -x "$OPT/bitwig-studio/bitwig-studio" ]; then had+=("$BITWIG"); fi
+if [ -d "$OPT/REAPER" ]; then had+=("$REAPER"); fi
+if [ -e "$HOME/.local/bin/renoise" ]; then had+=("$RENOISE"); fi
+if is_layered ardour9; then had+=("$ARDOUR"); fi
+if is_layered lmms; then had+=("$LMMS"); fi
+sel=$(IFS=,; echo "${had[*]+"${had[*]}"}")
+mapfile -t daws < <(gum choose --no-limit --header "DAWs (space to pick, enter when done):" \
+    ${sel:+--selected="$sel"} "$BITWIG" "$REAPER" "$RENOISE" "$ARDOUR" "$LMMS")
+picked() { printf '%s\n' "${daws[@]+"${daws[@]}"}" | grep -qxF "$1"; }
+
+### plugins: the checklist. one line per plugin, all its formats
+EVERYTHING="★ everything (all of them, about 26 GB)"
+line() { printf '%s  [%s]  %s\n' "$1" "${2//,//}" "$3"; }  # name [clap/vst3/...] summary
+mapfile -t lines < <(while IFS=$'\t' read -r name fmt pkgs summary; do line "$name" "$fmt" "$summary"; done < "$CAT")
+pre=()
+while IFS=$'\t' read -r name fmt pkgs summary; do
+    # ticked: what you have, or the first time, a few good free ones to start with
+    first=$(grep -qE '^(Carla-mao|lsp-plugins|surge-xt|dexed|cardinal|airwindows|dragonfly-reverb|x42-plugins|guitarix)$' <<< "$name" && echo 1 || true)
+    have=""; for p in $pkgs; do if is_layered "$p"; then have=1; fi; done
+    if [ -n "$have" ] || { [ ${#layered[@]} -eq 0 ] && [ -n "$first" ]; }; then
+        pre+=("$(line "$name" "$fmt" "$summary")")
+    fi
+done < "$CAT"
+sel=$(IFS=,; echo "${pre[*]+"${pre[*]}"}")
+mapfile -t chosen < <(printf '%s\n' "$EVERYTHING" "${lines[@]}" | gum filter --no-limit --height 25 \
+    --header "Plugins and audio apps (type to search, tab to pick, enter when done):" \
+    --placeholder "synth, reverb, guitar, drum, clap..." ${sel:+--selected="$sel"})
+
+want=(yabridge)  # microsoft windows plugins, with wine from the image
+if picked "$ARDOUR"; then want+=(ardour9); fi
+if picked "$LMMS"; then want+=(lmms); fi
+if printf '%s\n' "${chosen[@]+"${chosen[@]}"}" | grep -qxF "$EVERYTHING"; then
+    names=$(cut -f1 "$CAT")
+else
+    names=$(printf '%s\n' "${chosen[@]+"${chosen[@]}"}" | awk '{print $1}')
 fi
-for d in "${daws[@]+"${daws[@]}"}"; do
-    [ -n "${APP[$d]:-}" ] || { echo "unknown daw: $d" >&2; exit 1; }
-done
-
-# realtime priority comes with an admin account (wheel); everyone else joins the group
-id -nG | grep -qw wheel || sudo usermod -aG realtime,audio "$USER"
-
-flatpak install -y --user flathub studio.kx.carla
-
-branches=()
-for d in "${daws[@]+"${daws[@]}"}"; do
-    flatpak install -y --user flathub "${APP[$d]}"
-    # plugins are flatpak extensions and must match the daw's runtime branch
-    rt=$(flatpak info --user --show-runtime "${APP[$d]}")   # e.g. org.freedesktop.Platform/x86_64/25.08
-    b=${rt##*/}; branches+=("${b##*-}")                    # kde's 5.15-25.08 -> 25.08
-done
-for b in $(printf '%s\n' "${branches[@]+"${branches[@]}"}" | sort -u); do
-    for p in $PLUGINS; do
-        flatpak install -y --user flathub "org.freedesktop.LinuxAudio.Plugins.$p//$b" 2>/dev/null \
-            || echo "($p isn't built for $b yet, skipped)"
-    done
-done
-
-if [ -n "$RENOISE_TAR" ]; then
-    # renoise runs from its own folder; keep it in ~/.local/opt with a launcher
-    dest="$HOME/.local/opt"; mkdir -p "$dest" "$HOME/.local/bin" "$HOME/.local/share/applications"
-    top=$(tar -tzf "$RENOISE_TAR" | head -1 | cut -d/ -f1)
-    rm -rf "${dest:?}/$top"; tar -xzf "$RENOISE_TAR" -C "$dest"
-    bin=$(find "$dest/$top" -maxdepth 1 -type f -name 'renoise*' -perm -u+x | head -1)
-    ln -sf "$bin" "$HOME/.local/bin/renoise"
-    icon=$(find "$dest/$top" -name 'renoise.png' | head -1)
-    cat > "$HOME/.local/share/applications/renoise.desktop" <<DESKTOP
-[Desktop Entry]
-Type=Application
-Name=Renoise
-Exec=$HOME/.local/bin/renoise %f
-Icon=${icon:-audio-x-generic}
-Categories=AudioVideo;Audio;
-DESKTOP
-    echo "renoise installed: $bin"
+mapfile -t -O "${#want[@]}" want < <(awk -F'\t' 'NR == FNR { n[$1]; next } $1 in n { print $3 }' \
+    <(echo "$names") "$CAT" | tr ' ' '\n')
+if ! grep -qx Carla-mao <<< "$names"; then  # always a plugin host
+    mapfile -t -O "${#want[@]}" want < <(awk -F'\t' '$1 == "Carla-mao" { print $3 }' "$CAT" | tr ' ' '\n')
 fi
 
-# yabridge: windows plugins in linux daws, through wine (in the image).
-# its usual home, ~/.local/share/yabridge; run this again to update it
-Y="$HOME/.local/share/yabridge"
-if [ "$("$Y/yabridgectl" --version 2>/dev/null | awk '{print $2}')" != "$YABRIDGE" ]; then
-    tmp=$(mktemp -d)
-    curl -fL -o "$tmp/y.tar.gz" \
-        "https://github.com/robbert-vdh/yabridge/releases/download/${YABRIDGE}/yabridge-${YABRIDGE}.tar.gz"
-    rm -rf "$Y"; mkdir -p "$HOME/.local/share" "$HOME/.local/bin"
-    tar -xzf "$tmp/y.tar.gz" -C "$HOME/.local/share"; rm -rf "$tmp"
+### layer the difference: add what's new, remove what was unticked (only things
+### this manages: audinux's, ardour, lmms)
+managed() { cut -f3 "$CAT" | tr ' ' '\n'; printf '%s\n' ardour9 lmms yabridge; }
+add=(); remove=()
+for p in "${want[@]}"; do
+    if ! is_layered "$p"; then add+=("$p"); fi
+done
+while read -r p; do
+    if is_layered "$p" && ! printf '%s\n' "${want[@]}" | grep -qx "$p"; then remove+=("--uninstall=$p"); fi
+done < <(managed | sort -u)
+if [ ${#add[@]} -gt 0 ] || [ ${#remove[@]} -gt 0 ]; then
+    [ -e /etc/yum.repos.d/nekozame-audinux.repo ] || sudo install -m0644 "$D/audinux.repo" /etc/yum.repos.d/nekozame-audinux.repo
+    echo "adding ${#add[@]} packages, removing ${#remove[@]}. this can take a while."
+    sudo rpm-ostree install --idempotent --allow-inactive "${add[@]}" "${remove[@]}"
+    need_reboot=1
 fi
-ln -sf "$Y/yabridgectl" "$HOME/.local/bin/yabridgectl"
-yabridgectl() { "$Y/yabridgectl" "$@"; }
-# where windows plugin installers put things inside wine
+
+### the native daws
+if picked "$BITWIG"; then
+    # the linux installer is a self-contained .deb: unpack its /opt/bitwig-studio
+    ver=$(curl -fsSL -A Mozilla/5.0 https://www.bitwig.com/download/ \
+        | grep -o -E 'Bitwig%20Studio/[0-9.]+/installer_linux' | head -1 | cut -d/ -f2)
+    [ -n "$ver" ] || { echo "couldn't find bitwig's latest version" >&2; exit 1; }
+    if [ "$(cat "$OPT/bitwig-studio/.version" 2>/dev/null)" != "$ver" ]; then
+        tmp=$(mktemp -d)
+        curl -fL -A Mozilla/5.0 -o "$tmp/bitwig.deb" "https://www.bitwig.com/dl/Bitwig%20Studio/$ver/installer_linux/"
+        python3 - "$tmp/bitwig.deb" "$tmp" <<'PY'
+import sys  # a .deb is an ar archive; take its data.tar.*
+f = open(sys.argv[1], "rb"); assert f.read(8) == b"!<arch>\n"
+while (h := f.read(60)):
+    name, size = h[:16].decode().strip().rstrip("/"), int(h[48:58])
+    data = f.read(size); f.read(size % 2)
+    if name.startswith("data.tar"): open(f"{sys.argv[2]}/{name}", "wb").write(data)
+PY
+        mkdir "$tmp/x"; tar -xf "$tmp"/data.tar.* -C "$tmp/x"
+        rm -rf "$OPT/bitwig-studio"; mv "$tmp/x/opt/bitwig-studio" "$OPT/bitwig-studio"
+        cp -r "$tmp/x/usr/share/icons" "$HOME/.local/share/" 2>/dev/null || true
+        mkdir -p "$HOME/.local/share/mime/packages"
+        cp "$tmp"/x/usr/share/mime/packages/*.xml "$HOME/.local/share/mime/packages/" 2>/dev/null || true
+        sed "s|^Exec=[^ ]*|Exec=$OPT/bitwig-studio/bitwig-studio|" "$tmp"/x/usr/share/applications/*.desktop \
+            > "$HOME/.local/share/applications/com.bitwig.BitwigStudio.desktop"
+        echo "$ver" > "$OPT/bitwig-studio/.version"
+        rm -rf "$tmp"
+    fi
+    ln -sf "$OPT/bitwig-studio/bitwig-studio" "$HOME/.local/bin/bitwig-studio"
+    echo "bitwig studio $ver"
+fi
+
+if picked "$REAPER"; then
+    url=$(curl -fsSL -A Mozilla/5.0 https://www.reaper.fm/download.php \
+        | grep -o -E 'files/[0-9.x]+/reaper[0-9a-z_]*_linux_x86_64\.tar\.xz' | head -1)
+    [ -n "$url" ] || { echo "couldn't find reaper's latest version" >&2; exit 1; }
+    if [ "$(cat "$OPT/REAPER/.nekozame-url" 2>/dev/null)" != "$url" ]; then
+        tmp=$(mktemp -d)
+        curl -fL -A Mozilla/5.0 -o "$tmp/reaper.tar.xz" "https://www.reaper.fm/$url"
+        tar -xJf "$tmp/reaper.tar.xz" -C "$tmp"
+        "$tmp"/reaper_linux_x86_64/install-reaper.sh --install "$OPT" --integrate-user-desktop --quiet
+        echo "$url" > "$OPT/REAPER/.nekozame-url"
+        rm -rf "$tmp"
+    fi
+    ln -sf "$OPT/REAPER/reaper" "$HOME/.local/bin/reaper"
+    echo "reaper (${url##*/})"
+fi
+
+if picked "$RENOISE" && [ ! -e "$HOME/.local/bin/renoise" ]; then
+    echo "renoise: download the linux tarball (demo or your full version) from renoise.com"
+    tar_=$(gum input --placeholder "path to Renoise_*_Linux_x86_64.tar.gz (empty: skip)")
+    if [ -n "$tar_" ]; then
+        [ -f "$tar_" ] || { echo "no such file: $tar_" >&2; exit 1; }
+        top=$(tar -tzf "$tar_" | head -1 | cut -d/ -f1)
+        rm -rf "${OPT:?}/$top"; tar -xzf "$tar_" -C "$OPT"
+        bin=$(find "$OPT/$top" -maxdepth 1 -type f -name 'renoise*' -perm -u+x | head -1)
+        ln -sf "$bin" "$HOME/.local/bin/renoise"
+        icon=$(find "$OPT/$top" -name 'renoise.png' | head -1)
+        printf '[Desktop Entry]\nType=Application\nName=Renoise\nExec=%s %%f\nIcon=%s\nCategories=AudioVideo;Audio;\n' \
+            "$HOME/.local/bin/renoise" "${icon:-audio-x-generic}" > "$HOME/.local/share/applications/renoise.desktop"
+        echo "renoise: $bin"
+    fi
+fi
+
+### the old flatpak setup: flatpak daws only see flatpak plugins, so they're replaced
+### by the native ones. settings stay (bitwig keeps them in ~/.BitwigStudio)
+old=$(flatpak list --app --columns=application 2>/dev/null \
+    | grep -x -E 'com.bitwig.BitwigStudio|fm.reaper.Reaper|org.ardour.Ardour|io.lmms.LMMS|studio.kx.carla' || true)
+if [ -n "$old" ] && gum confirm "Remove the Flatpak versions ($(echo $old)) and their Flatpak plugins? The native ones replace them."; then
+    if echo "$old" | grep -q org.ardour.Ardour; then  # keep ardour's settings
+        for c in "$HOME"/.var/app/org.ardour.Ardour/config/ardour*; do
+            if [ -e "$c" ] && [ ! -e "$HOME/.config/${c##*/}" ]; then cp -a "$c" "$HOME/.config/"; fi
+        done
+    fi
+    flatpak uninstall -y --noninteractive $old
+    flatpak list --columns=application | grep '^org.freedesktop.LinuxAudio.Plugins\.' \
+        | xargs -r flatpak uninstall -y --noninteractive
+fi
+
+### microsoft windows plugins: yabridge watches the folders their installers use
+### inside wine. yabridgectl sync after installing one
 C="${WINEPREFIX:-$HOME/.wine}/drive_c/Program Files"
-mkdir -p "$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins"
-for dir in "$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins"; do
-    yabridgectl add "$dir" 2>/dev/null || true
-done
+dirs=("$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins")
+mkdir -p "${dirs[@]}"
+if command -v yabridgectl >/dev/null; then
+    for d in "${dirs[@]}"; do yabridgectl add "$d" 2>/dev/null || true; done
+elif [ ! -e "$HOME/.config/yabridgectl/config.toml" ]; then
+    # yabridge arrives with the next boot: its folders are already set
+    mkdir -p "$HOME/.config/yabridgectl"
+    { printf 'plugin_dirs = ['; printf "'%s', " "${dirs[@]}"; printf ']\n'; } \
+        | sed 's/, ]/]/' > "$HOME/.config/yabridgectl/config.toml"
+fi
+
+echo
 echo "done."
-echo "windows plugins: install them with wine, then run: yabridgectl sync"
+if [ -n "${need_reboot:-}" ]; then echo "reboot for the new packages (systemctl reboot)."; fi
+echo "microsoft windows plugins: install them with wine, then: yabridgectl sync"

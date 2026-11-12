@@ -15,11 +15,18 @@ RUN dnf -y install gcc meson ninja-build pkgconf-pkg-config mpv-devel wayland-de
     meson setup /tmp/build "/tmp/mpvpaper-${MPVPAPER}" --prefix=/usr --buildtype=release && \
     DESTDIR=/out ninja -C /tmp/build install
 
+# The music production checklist: what Audinux has for this Fedora release (see
+# build_files/audinux-catalog.sh). Nothing from Audinux goes into the image itself.
+FROM registry.fedoraproject.org/fedora:45 AS audinux
+COPY build_files/audinux-catalog.sh build_files/audinux-formats.awk /ctx/
+RUN /ctx/audinux-catalog.sh
+
 # Allow build scripts to be referenced without being copied into the final image
 FROM scratch AS ctx
 COPY build_files /
 COPY system_files /system_files
 COPY --from=mpvpaper /out /mpvpaper
+COPY --from=audinux /out /audinux
 
 # Base image: one per variant (the workflow builds all three)
 #   nekozame-os       bazzite-dx-nvidia   nvidia pcs

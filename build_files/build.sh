@@ -116,6 +116,20 @@ command -v mpvpaper
 ### per user: nekozame-music
 retry dnf5 -y install realtime-setup qpwgraph
 
+### music production (nekozame-music layers what each person picks): the audinux
+### checklist from its build stage, and plugin folders every daw finds. fedora's
+### plugins are in /usr/lib64; reaper, bitwig and most hosts look in /usr/lib (and
+### follow folders inside it), so link lib64 in there. lv2/ladspa/dssi don't follow
+### folders: environment.d sets their paths
+# what native bitwig needs that the base doesn't have (reaper needs nothing)
+retry dnf5 -y install xcb-util xcb-util-wm xcb-imdkit
+install -Dm0644 /ctx/audinux/catalog.tsv /usr/share/nekozame-os/audinux/catalog.tsv
+install -Dm0644 /ctx/audinux/audinux.repo /usr/share/nekozame-os/audinux/audinux.repo
+for f in vst3 vst clap; do
+    mkdir -p "/usr/lib64/$f" "/usr/lib/$f"
+    ln -sfn "/usr/lib64/$f" "/usr/lib/$f/lib64"
+done
+
 ### wine: windows apps (and windows plugins, once nekozame-music sets up yabridge)
 retry dnf5 -y install wine
 

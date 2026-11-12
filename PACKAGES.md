@@ -40,9 +40,9 @@ On the Steam Deck image, Desktop Mode is [KDE Plasma](https://kde.org/plasma-des
 
 ## Music production (optional)
 
-- [Bitwig](https://www.bitwig.com), [Reaper](https://www.reaper.fm), [Renoise](https://www.renoise.com), [Ardour](https://ardour.org) or [LMMS](https://lmms.io) (DAWs)
+- [Bitwig](https://www.bitwig.com), [Reaper](https://www.reaper.fm), [Renoise](https://www.renoise.com), [Ardour](https://ardour.org) or [LMMS](https://lmms.io) (DAWs, native)
+- [Audinux](https://audinux.github.io) (a checklist of about 700 plugins and audio apps, every format each one comes in)
 - [Carla](https://kx.studio/Applications:Carla) (plugin host)
-- [Calf](https://calf-studio-gear.org), [LSP](https://lsp-plug.in), [Surge XT](https://surge-synthesizer.github.io), [Dexed](https://asb2m10.github.io/dexed/), [Cardinal](https://cardinal.kx.studio), [Helm](https://tytel.org/helm/), [Geonkick](https://gitlab.com/Geonkick-Synthesizer/geonkick), [x42](https://x42-plugins.com), [Zam](https://github.com/zamaudio/zam-plugins), [Dragonfly Reverb](https://michaelwillis.github.io/dragonfly-reverb/) (plugins)
 - [yabridge](https://github.com/robbert-vdh/yabridge) (Microsoft Windows plugins)
 
 ## Streaming

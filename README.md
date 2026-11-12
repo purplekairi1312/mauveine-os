@@ -7,7 +7,7 @@ Opinionated immutable distro.
 - [niri](https://github.com/niri-wm/niri) with [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) is the whole desktop, login screen included, with no KDE (the Steam Deck image keeps KDE for Desktop Mode)
 - Gaming and emulation tools (and NVIDIA drivers on the NVIDIA image)
 - Doom Emacs as `$EDITOR`, always running as a daemon, emacs keys (evil mode or another editor if you want)
-- Low-latency audio with realtime priority for everyone, and music production on request: Bitwig, Reaper or Renoise (proprietary, paid), Ardour or LMMS (free software), plugins, and yabridge for Microsoft Windows plugins
+- Low-latency audio with realtime priority for everyone, and music production on request: Bitwig, Reaper or Renoise (proprietary, paid), Ardour or LMMS (free software), a checklist of about 700 plugins from Audinux that every DAW finds, and yabridge for Microsoft Windows plugins
 - Sunshine always on, so you can stream it from anywhere over Tailscale with Moonlight
 - Zen, ready for privacy: Dark Reader, uBlock Origin, Privacy Badger, LibRedirect, ClearURLs and Consent-O-Matic, DuckDuckGo, HTTPS-only, no telemetry, no WebRTC leaks (Helium optional, with the same)
 - Microsoft Windows VMs with quickemu (`quickget windows 11`) on top of libvirt and virt-manager
