@@ -36,6 +36,7 @@ command -v mpvpaper
 
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
+dnf5 -y install plymouth-plugin-script  # the theme is a plymouth script
 plymouth-set-default-theme nekozame
 KVER="$(ls /usr/lib/modules | head -n1)"
 dracut --no-hostonly --kver "$KVER" --reproducible --zstd -v --add ostree \
