@@ -12,6 +12,8 @@ cp -avf "/ctx/system_files"/. /
 # its helper repo (avengemedia/danklinux) for dependencies such as quickshell.
 dnf5 -y copr enable avengemedia/dms
 dnf5 -y install niri dms
+# niri's screen capture (screen sharing, sunshine) goes through the gnome portal
+dnf5 -y install xdg-desktop-portal-gnome
 
 # dms starts with every niri session, and a first niri login gets dms's config
 systemctl --global add-wants niri.service dms.service
