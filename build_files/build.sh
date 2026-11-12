@@ -92,6 +92,10 @@ dnf5 -y install Sunshine
 dnf5 -y copr disable lizardbyte/stable
 setcap cap_sys_admin+p "$(readlink -f /usr/bin/sunshine)"
 
+### ujust: hide bazzite's recipes that don't fit (deck, handhelds, other hardware,
+### bazzite branding) and the ones nekozame os wraps under its own names
+python3 /ctx/hide-recipes.py /usr/share/ublue-os/just
+
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
 dnf5 -y install plymouth-plugin-script  # the theme is a plymouth script
