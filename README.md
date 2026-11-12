@@ -4,6 +4,11 @@
 
 Opinionated immutable distro, built on [Bazzite](https://bazzite.gg).
 
+- [niri](https://github.com/niri-wm/niri) with [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) as the desktop (KDE Plasma is still there, for now)
+- Gaming and emulation tools from Bazzite, with NVIDIA drivers
+- Emacs (made for Doom Emacs), Ghostty and fuzzel built in, plus Bazzite DX's dev tools
+- An animated catshark boot screen and wallpaper, sharp on any screen shape
+
 ## Install
 
 From Bazzite (DX, NVIDIA) or any Universal Blue image. Your files, Flatpaks and settings stay.
