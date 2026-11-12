@@ -1,27 +1,31 @@
 #!/bin/bash
+# Mauveine OS: Bazzite DX (NVIDIA) plus niri, DankMaterialShell and a few
+# editors and tools, with the Mauveine theme installed system-wide.
 
 set -ouex pipefail
 
-# Copy the contents of system_files/ of the git repo to /
+# Theme files, wallpaper and configs from system_files/
 cp -avf "/ctx/system_files"/. /
 
-### Install packages
+### niri + DankMaterialShell
+# niri comes from Fedora. DMS comes from its developers' COPR, which pulls in
+# its helper repo (avengemedia/danklinux) for dependencies such as quickshell.
+dnf5 -y copr enable avengemedia/dms
+dnf5 -y install niri dms
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
+### Packages that used to be layered by hand on this machine
+dnf5 -y copr enable scottames/ghostty
+dnf5 -y install emacs fuzzel ghostty
 
-# this installs a package from fedora repos
-dnf5 install -y tmux
+### Only accept updates signed with this repo's key (cosign.pub)
+jq '.transports.docker["ghcr.io/purplekairi1312/mauveine-os"] = [{
+      "type": "sigstoreSigned",
+      "keyPath": "/etc/pki/containers/mauveine-os.pub",
+      "signedIdentity": {"type": "matchRepository"}
+    }]' /etc/containers/policy.json > /tmp/policy.json
+mv /tmp/policy.json /etc/containers/policy.json
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
-
-#### Example for enabling a System Unit File
-
-systemctl enable podman.socket
+# Don't leave the COPRs enabled on the finished system.
+dnf5 -y copr disable avengemedia/dms
+dnf5 -y copr disable avengemedia/danklinux || true
+dnf5 -y copr disable scottames/ghostty

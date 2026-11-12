@@ -1,0 +1,3 @@
+docker:
+  ghcr.io/purplekairi1312/mauveine-os:
+    use-sigstore-attachments: true
