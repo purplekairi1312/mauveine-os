@@ -5,6 +5,7 @@
 - niri (window manager)
 - DankMaterialShell (shell: bar, launcher, notifications, settings)
 - dms-greeter (login screen)
+- cava (audio visualizer on the bar)
 - Ghostty (terminal)
 - fuzzel (launcher)
 - Thunar (file manager)

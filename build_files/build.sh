@@ -38,6 +38,8 @@ if [ "${VARIANT:-nvidia}" != deck ]; then
     retry dnf5 -y install niri dms dms-greeter greetd
     # niri's screen capture (screen sharing, sunshine) goes through the gnome portal
     retry dnf5 -y install xdg-desktop-portal-gnome
+    # dms's media widget draws an audio visualizer on the bar with cava
+    retry dnf5 -y install cava
     dnf5 -y copr disable avengemedia/dms
     dnf5 -y copr disable avengemedia/danklinux || true
 
