@@ -1,0 +1,55 @@
+#!/bin/bash
+# nekozame-sunshine: sunshine always on, reachable over tailscale.
+#   native sunshine (in the image, with the kms capture right), so it captures the
+#   screen under niri, kde or anything, and runs from boot (linger), even when
+#   nobody's at the machine. your flatpak/brew sunshine settings and paired devices
+#   carry over. optionally logs you in to niri at boot, so there's always a desktop.
+set -euo pipefail
+
+CONF="$HOME/.config/sunshine"
+FLATPAK_CONF="$HOME/.var/app/dev.lizardbyte.app.Sunshine/config/sunshine"
+
+# the native unit (whatever name this sunshine version ships it under)
+unit=""
+for u in app-dev.lizardbyte.app.Sunshine.service sunshine.service; do
+    [ -e "/usr/lib/systemd/user/$u" ] && { unit=$u; break; }
+done
+[ -n "$unit" ] || { echo "no sunshine in this image" >&2; exit 1; }
+
+# stop the flatpak and brew ones; bazzite's flatpak unit in ~/.config would shadow ours
+systemctl --user disable --now app-dev.lizardbyte.app.Sunshine.service homebrew.sunshine.service \
+    homebrew.sunshine-beta.service 2>/dev/null || true
+rm -f "$HOME/.config/systemd/user/app-dev.lizardbyte.app.Sunshine.service"
+rm -rf "$HOME/.config/systemd/user/app-dev.lizardbyte.app.Sunshine.service.d"
+systemctl --user daemon-reload
+
+# keep the settings, credentials and paired devices from the flatpak
+mkdir -p "$CONF"
+for f in credentials sunshine_state.json apps.json sunshine.conf; do
+    [ -e "$FLATPAK_CONF/$f" ] && [ ! -e "$CONF/$f" ] && cp -a "$FLATPAK_CONF/$f" "$CONF/"
+done
+touch "$CONF/sunshine.conf"
+setkey() {  # setkey KEY VALUE
+    if grep -q "^$1 *=" "$CONF/sunshine.conf"; then
+        sed -i "s|^$1 *=.*|$1 = $2|" "$CONF/sunshine.conf"
+    else
+        echo "$1 = $2" >> "$CONF/sunshine.conf"
+    fi
+}
+setkey capture kms                 # works under any compositor
+setkey origin_web_ui_allowed wan   # tailscale addresses (100.x) count as wan
+
+# run from boot, not only while logged in
+sudo loginctl enable-linger "$USER"
+systemctl --user enable --now "$unit"
+
+read -r -p "log in to niri automatically at boot, so there's always a desktop to stream? [y/N] " a
+if [[ "${a,,}" == y* ]]; then
+    printf '[Autologin]\nUser=%s\nSession=niri.desktop\n' "$USER" \
+        | sudo tee /etc/sddm.conf.d/zz-nekozame-autologin.conf >/dev/null
+    echo "autologin: niri, from the next boot"
+fi
+
+ip=$(tailscale ip -4 2>/dev/null | head -1 || true)
+echo "sunshine is on. moonlight: ${ip:-this machine's tailscale ip}"
+echo "web ui: https://${ip:-localhost}:47990"
