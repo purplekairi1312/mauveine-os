@@ -13,6 +13,10 @@ cp -avf "/ctx/system_files"/. /
 dnf5 -y copr enable avengemedia/dms
 dnf5 -y install niri dms
 
+# dms starts with every niri session, and a first niri login gets dms's config
+systemctl --global add-wants niri.service dms.service
+systemctl --global enable nekozame-niri-config.service
+
 ### Packages that used to be layered by hand on this machine
 dnf5 -y copr enable scottames/ghostty
 dnf5 -y install emacs fuzzel ghostty

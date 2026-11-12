@@ -1,0 +1,13 @@
+# on a first niri login, give niri the dankmaterialshell config before niri starts,
+# so it never writes its stock one (waybar, alacritty)
+[Unit]
+Description=nekozame os: DankMaterialShell config for niri
+Before=niri.service
+ConditionPathExists=!%h/.config/niri/config.kdl
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/dms setup headless --compositor niri --no-systemd
+
+[Install]
+WantedBy=niri.service
