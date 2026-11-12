@@ -29,11 +29,11 @@ jobs:
       matrix:
         include:
           - image: nekozame-os
-            base: ghcr.io/ublue-os/bazzite-dx-nvidia:stable
-            variant: nvidia
-          - image: nekozame-os-amd
             base: ghcr.io/ublue-os/bazzite-dx:stable
             variant: amd
+          - image: nekozame-os-nvidia
+            base: ghcr.io/ublue-os/bazzite-dx-nvidia:stable
+            variant: nvidia
           - image: nekozame-os-deck
             base: ghcr.io/ublue-os/bazzite-deck:stable
             variant: deck

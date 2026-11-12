@@ -1,6 +1,6 @@
 #!/bin/bash
 # nekozame os: niri, DankMaterialShell, a few editors and tools, and the
-# nekozame theme, on its Bazzite DX (NVIDIA) base.
+# nekozame theme, on Bazzite DX (AMD and Intel), Bazzite DX NVIDIA or the Steam Deck image.
 
 set -ouex pipefail
 
@@ -22,7 +22,7 @@ cp -avf "/ctx/system_files"/. /
 ### ujust nekozame-niri layers niri for whoever wants it).
 # niri comes from Fedora. DMS comes from its developers' COPR, which pulls in
 # its helper repo (avengemedia/danklinux) for dependencies such as quickshell.
-if [ "${VARIANT:-nvidia}" != deck ]; then
+if [ "${VARIANT:-amd}" != deck ]; then
     # the pc images have no kde at all: niri with dms is the whole desktop
     dnf5 -y remove "plasma-*" "kwin*" "kde-*" "kdeplasma-*" "kdeconnect*" "kf5-*" "kf6-*" \
         "kio-*" "kscreen*" "krunner*" "kwallet*" "kwrite*" "akonadi*" "baloo*" "dolphin*" \
@@ -164,7 +164,7 @@ setcap cap_sys_admin+p "$(readlink -f /usr/bin/sunshine)"
 
 ### ujust: hide bazzite's recipes that don't fit (deck, handhelds, other hardware,
 ### bazzite branding) and the ones nekozame os wraps under its own names
-python3 /ctx/hide-recipes.py /usr/share/ublue-os/just "${VARIANT:-nvidia}"
+python3 /ctx/hide-recipes.py /usr/share/ublue-os/just "${VARIANT:-amd}"
 
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
@@ -176,7 +176,7 @@ dracut --no-hostonly --kver "$KVER" --reproducible --zstd -v --add ostree \
 chmod 0600 "/usr/lib/modules/$KVER/initramfs.img"
 
 ### Only accept updates signed with this repo's key (cosign.pub)
-jq '["nekozame-os", "nekozame-os-amd", "nekozame-os-deck"] as $images
+jq '["nekozame-os", "nekozame-os-nvidia", "nekozame-os-deck"] as $images
     | reduce $images[] as $i (.; .transports.docker["ghcr.io/purplekairi1312/\($i)"] = [{
       "type": "sigstoreSigned",
       "keyPath": "/etc/pki/containers/nekozame-os.pub",

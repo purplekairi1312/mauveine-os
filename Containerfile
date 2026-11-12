@@ -1,6 +1,6 @@
 # the bazzite base for this variant (see the FROM below); declared before the first
 # FROM so the FROM can use it
-ARG BASE_IMAGE=ghcr.io/ublue-os/bazzite-dx-nvidia:stable
+ARG BASE_IMAGE=ghcr.io/ublue-os/bazzite-dx:stable
 
 # mpvpaper (the animated wallpaper player) isn't in Fedora. Compile it in plain
 # Fedora, matching nekozame os's Fedora release, so no build tools touch the image
@@ -29,11 +29,11 @@ COPY --from=mpvpaper /out /mpvpaper
 COPY --from=audinux /out /audinux
 
 # Base image: one per variant (the workflow builds all three)
-#   nekozame-os       bazzite-dx-nvidia   nvidia pcs
-#   nekozame-os-amd   bazzite-dx          amd / intel pcs and laptops
+#   nekozame-os         bazzite-dx          amd / intel pcs and laptops
+#   nekozame-os-nvidia  bazzite-dx-nvidia   nvidia pcs
 #   nekozame-os-deck  bazzite-deck        steam deck
 FROM ${BASE_IMAGE}
-ARG VARIANT=nvidia
+ARG VARIANT=amd
 ## Other possible base images include:
 # FROM ghcr.io/ublue-os/bazzite:testing
 # FROM ghcr.io/ublue-os/aurora:stable

@@ -23,12 +23,12 @@ From any Universal Blue image. Your files, Flatpaks and settings stay. Pick the 
 
 | Machine | Image |
 |---|---|
-| PC with an NVIDIA GPU | `nekozame-os` |
-| PC or laptop with AMD or Intel graphics | `nekozame-os-amd` |
+| PC or laptop with AMD or Intel graphics | `nekozame-os` |
+| PC with an NVIDIA GPU | `nekozame-os-nvidia` |
 | Steam Deck | `nekozame-os-deck` (boots Game Mode; Desktop Mode is KDE with the nekozame look, `ujust nekozame-niri` adds niri; no DX dev tools) |
 
 ```sh
-IMAGE=nekozame-os   # or nekozame-os-amd, nekozame-os-deck
+IMAGE=nekozame-os   # or nekozame-os-nvidia, nekozame-os-deck
 
 # Drop anything you layered yourself
 sudo rpm-ostree reset
@@ -50,8 +50,8 @@ systemctl reboot
 **Going back?**
 
 ```sh
-# bazzite-dx-nvidia, bazzite-dx or bazzite-deck, matching your nekozame os image
-sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/ublue-os/bazzite-dx-nvidia:stable
+# bazzite-dx, bazzite-dx-nvidia or bazzite-deck, matching your nekozame os image
+sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/ublue-os/bazzite-dx:stable
 ```
 
 **How is it built and updated?**

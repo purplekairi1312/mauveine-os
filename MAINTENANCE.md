@@ -4,7 +4,7 @@ How nekozame os stays updated, and what to do when something breaks.
 
 ## How updates flow
 
-1. GitHub Actions builds all three images every day (`nekozame-os`, `nekozame-os-amd`, `nekozame-os-deck`) on top of the latest Bazzite.
+1. GitHub Actions builds all three images every day (`nekozame-os`, `nekozame-os-nvidia`, `nekozame-os-deck`) on top of the latest Bazzite.
 2. Every build runs the smoke tests in [`build_files/test.sh`](build_files/test.sh). If one fails, that image isn't pushed, so nobody gets it.
 3. A build that passes becomes `:latest`.
 4. On Sundays, [`promote.yml`](.github/workflows/promote.yml) copies `:latest` to `:stable`. Users follow `:stable`.

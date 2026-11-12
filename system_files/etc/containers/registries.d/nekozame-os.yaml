@@ -1,3 +1,7 @@
 docker:
   ghcr.io/purplekairi1312/nekozame-os:
     use-sigstore-attachments: true
+  ghcr.io/purplekairi1312/nekozame-os-nvidia:
+    use-sigstore-attachments: true
+  ghcr.io/purplekairi1312/nekozame-os-deck:
+    use-sigstore-attachments: true
