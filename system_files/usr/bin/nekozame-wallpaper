@@ -48,7 +48,7 @@ render() {
         sw=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$src")
         sh=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 "$src")
         local k=$(( (w + sw - 1) / sw )); local kh=$(( (h + sh - 1) / sh ))
-        [ "$kh" -gt "$k" ] && k=$kh
+        if [ "$kh" -gt "$k" ]; then k=$kh; fi
         ffmpeg -loglevel error -y -i "$src" \
             -vf "scale=iw*$k:ih*$k:flags=neighbor,crop=$w:$h" \
             -c:v libx264 -crf 14 -preset veryfast -pix_fmt yuv444p -an "$f"

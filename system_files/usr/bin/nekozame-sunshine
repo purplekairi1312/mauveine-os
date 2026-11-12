@@ -13,7 +13,7 @@ FLATPAK_CONF="$HOME/.var/app/dev.lizardbyte.app.Sunshine/config/sunshine"
 # the native unit (whatever name this sunshine version ships it under)
 unit=""
 for u in app-dev.lizardbyte.app.Sunshine.service sunshine.service; do
-    [ -e "/usr/lib/systemd/user/$u" ] && { unit=$u; break; }
+    if [ -e "/usr/lib/systemd/user/$u" ]; then unit=$u; break; fi
 done
 [ -n "$unit" ] || { echo "no sunshine in this image" >&2; exit 1; }
 
@@ -22,12 +22,16 @@ systemctl --user disable --now app-dev.lizardbyte.app.Sunshine.service homebrew.
     homebrew.sunshine-beta.service 2>/dev/null || true
 rm -f "$HOME/.config/systemd/user/app-dev.lizardbyte.app.Sunshine.service"
 rm -rf "$HOME/.config/systemd/user/app-dev.lizardbyte.app.Sunshine.service.d"
+rm -f "$HOME/.config/systemd/user/homebrew.sunshine.service" \
+    "$HOME/.config/systemd/user/homebrew.sunshine-beta.service"
 systemctl --user daemon-reload
 
 # keep the settings, credentials and paired devices from the flatpak
 mkdir -p "$CONF"
 for f in credentials sunshine_state.json apps.json sunshine.conf; do
-    [ -e "$FLATPAK_CONF/$f" ] && [ ! -e "$CONF/$f" ] && cp -a "$FLATPAK_CONF/$f" "$CONF/"
+    if [ -e "$FLATPAK_CONF/$f" ] && [ ! -e "$CONF/$f" ]; then
+        cp -a "$FLATPAK_CONF/$f" "$CONF/"
+    fi
 done
 touch "$CONF/sunshine.conf"
 setkey() {  # setkey KEY VALUE

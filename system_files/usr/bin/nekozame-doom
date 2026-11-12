@@ -4,7 +4,7 @@
 set -euo pipefail
 DOOM="$HOME/.config/emacs"
 if [ ! -d "$DOOM/.git" ]; then
-    [ -e "$DOOM" ] && mv "$DOOM" "$DOOM.bak.$(date +%s)"
+    if [ -e "$DOOM" ]; then mv "$DOOM" "$DOOM.bak.$(date +%s)"; fi
     git clone --depth 1 https://github.com/doomemacs/doomemacs "$DOOM"
     "$DOOM/bin/doom" install --force
 else
