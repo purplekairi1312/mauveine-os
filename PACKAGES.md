@@ -32,7 +32,6 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 
 - low-latency PipeWire with realtime priority
 - qpwgraph (patchbay)
-- Wine (Windows apps)
 
 ## Music production (optional)
 
@@ -41,12 +40,16 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 - Calf, LSP, Surge XT, Dexed, Cardinal, Helm, Geonkick, x42, Zam, Dragonfly Reverb (plugins)
 - yabridge (Windows plugins)
 
-## Streaming and VMs
+## Windows
+
+- Wine (Windows apps)
+- quickemu (Windows VMs)
+- virt-manager (VMs)
+
+## Streaming
 
 - Tailscale (private network between your machines)
 - Sunshine (game streaming, always on over Tailscale)
-- quickemu (Windows VMs)
-- virt-manager (VMs)
 
 ## Look
 

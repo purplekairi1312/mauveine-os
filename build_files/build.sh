@@ -112,10 +112,12 @@ cp -avf /ctx/mpvpaper/. /
 command -v mpvpaper
 
 ### audio, for everyone: low latency (pipewire config + threadirqs in system_files),
-### realtime priority (limits.d in system_files), a patchbay, and wine (games, apps,
-### and windows plugins once nekozame-music sets up yabridge). daws and plugins are
+### realtime priority (limits.d in system_files) and a patchbay. daws and plugins are
 ### per user: nekozame-music
-retry dnf5 -y install realtime-setup qpwgraph wine
+retry dnf5 -y install realtime-setup qpwgraph
+
+### wine: windows apps (and windows plugins, once nekozame-music sets up yabridge)
+retry dnf5 -y install wine
 
 ### windows vms: quickemu on top of dx's libvirt/qemu/swtpm/ovmf
 ### ("quickget windows 11" downloads windows and sets up the vm). fedora's package
