@@ -3,8 +3,8 @@
 # (~/.config/doom/themes/nekozame-theme.el) and the Bitwig theme.
 
 background = #5a4f6e
-foreground = #fff4fa
-bold-color = #ffd4ee
+foreground = #ffd9ef
+bold-color = #ffc0e5
 cursor-color = #ffc0e5
 cursor-text = #433a55
 selection-background = #ffc0e5
