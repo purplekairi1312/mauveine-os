@@ -64,7 +64,3 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 
 - greenboot (rolls back an update that doesn't reach the login screen)
 - signed daily builds, `:stable` weekly
-
-## Removed
-
-- KDE Plasma and the KDE apps (PC images)
