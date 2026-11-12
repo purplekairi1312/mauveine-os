@@ -9,7 +9,7 @@
 - [fuzzel](https://codeberg.org/dnkl/fuzzel) (launcher)
 - [Thunar](https://docs.xfce.org/xfce/thunar/start) (file manager)
 - [yazi](https://yazi-rs.github.io) (terminal file manager)
-- [Doom Emacs](https://github.com/doomemacs/doomemacs) (editor, `$EDITOR`)
+- [Doom Emacs](https://github.com/doomemacs/doomemacs) (`$EDITOR`)
 - [Zen](https://zen-browser.app) (browser)
 - [Helium](https://helium.computer) (browser, optional)
 - [gum](https://github.com/charmbracelet/gum) (the setup's menus)
