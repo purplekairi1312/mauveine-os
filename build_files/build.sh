@@ -33,6 +33,7 @@ install -Dm0644 "$T/ghostty/nekozame" /usr/share/ghostty/themes/nekozame
 install -Dm0644 "$T/btop/nekozame.theme" /usr/share/btop/themes/nekozame.theme
 install -Dm0644 "$T/palettes/nekozame.gpl" /usr/share/nekozame-os/nekozame.gpl
 install -Dm0644 "$T/dms/nekozame.json" /usr/share/nekozame-os/dms/nekozame.json
+install -Dm0644 "$T/darkreader/nekozame.json" /usr/share/nekozame-os/darkreader/nekozame.json
 rm -rf /tmp/nekozame-theme-main
 
 ### Branding: the name and logo people see. ID, VARIANT_ID and image-info.json

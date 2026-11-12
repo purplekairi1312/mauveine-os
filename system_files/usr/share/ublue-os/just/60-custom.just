@@ -19,3 +19,8 @@ nekozame-wallpaper VARIANT="small":
 [group('nekozame')]
 nekozame-sunshine:
     /usr/bin/nekozame-sunshine
+
+# Install the Helium browser (optional), or update it
+[group('nekozame')]
+nekozame-helium:
+    /usr/bin/nekozame-helium

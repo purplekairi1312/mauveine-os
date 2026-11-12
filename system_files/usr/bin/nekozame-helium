@@ -1,0 +1,28 @@
+#!/bin/bash
+# nekozame-helium: install helium (helium.computer, gpl-3.0), or update it to the
+# latest release. it lives in ~/.local/opt with a launcher and menu entry; run again
+# to update.
+set -euo pipefail
+
+API=https://api.github.com/repos/imputnet/helium-linux/releases/latest
+ver=$(curl -fsSL "$API" | jq -r .tag_name)
+[ -n "$ver" ] && [ "$ver" != null ] || { echo "couldn't find the latest helium release" >&2; exit 1; }
+name="helium-${ver}-x86_64_linux"
+opt="$HOME/.local/opt"
+
+if [ ! -d "$opt/$name" ]; then
+    tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+    curl -fL -o "$tmp/h.tar.xz" \
+        "https://github.com/imputnet/helium-linux/releases/download/${ver}/${name}.tar.xz"
+    mkdir -p "$opt"
+    tar -xJf "$tmp/h.tar.xz" -C "$opt"
+fi
+ln -sfn "$opt/$name" "$opt/helium"
+find "$opt" -maxdepth 1 -name 'helium-*-x86_64_linux' ! -name "$name" -exec rm -rf {} +  # older versions
+
+mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications" "$HOME/.local/share/icons/hicolor/256x256/apps"
+ln -sf "$opt/helium/helium-wrapper" "$HOME/.local/bin/helium"
+cp "$opt/helium/product_logo_256.png" "$HOME/.local/share/icons/hicolor/256x256/apps/helium.png"
+sed "s|^Exec=helium|Exec=$HOME/.local/bin/helium|" "$opt/helium/helium.desktop" \
+    > "$HOME/.local/share/applications/helium.desktop"
+echo "helium $ver installed"
