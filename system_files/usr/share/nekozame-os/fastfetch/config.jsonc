@@ -1,0 +1,30 @@
+// nekozame os fastfetch. nekozame-fetch picks the logo (image or text) and the
+// colours for the terminal it runs in.
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "display": { "separator": "  " },
+    "modules": [
+        { "type": "title", "key": " ", "color": { "user": "magenta", "at": "white", "host": "magenta" } },
+        "break",
+        { "type": "command", "key": " 󱋩", "text": "/usr/libexec/nekozame-fetch-image" },
+        { "type": "os", "key": " 󰣛", "format": "{pretty-name}" },
+        { "type": "kernel", "key": " ", "format": "{1} {2}" },
+        { "type": "uptime", "key": " 󰅐" },
+        "break",
+        { "type": "host", "key": " 󰾰" },
+        { "type": "cpu", "key": " 󰻠" },
+        { "type": "gpu", "key": " 󰍛" },
+        { "type": "memory", "key": " " },
+        { "type": "disk", "key": " ", "hideFS": "overlay" },
+        { "type": "display", "key": " 󰍹" },
+        { "type": "battery", "key": " " },
+        { "type": "gamepad", "key": " 󰖺" },
+        "break",
+        { "type": "wm", "key": " " },
+        { "type": "shell", "key": " " },
+        { "type": "terminal", "key": " " },
+        { "type": "packages", "key": " 󰏖" },
+        "break",
+        { "type": "colors", "paddingLeft": 2, "symbol": "circle" }
+    ]
+}

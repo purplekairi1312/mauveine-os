@@ -21,6 +21,8 @@ check "wallpapers" 'test -s /usr/share/backgrounds/nekozame/small-16x9.mkv'
 check "signed updates, every image" 'for i in nekozame-os nekozame-os-amd nekozame-os-deck; do jq -e ".transports.docker[\"ghcr.io/purplekairi1312/$i\"]" /etc/containers/policy.json || exit 1; done'
 check "low latency audio" 'test -f /usr/share/pipewire/pipewire.conf.d/50-nekozame-lowlatency.conf'
 check "greenboot login screen check" 'test -x /etc/greenboot/check/required.d/50-nekozame-login-screen.sh'
+check "nekozame-fetch with its logos" 'test -x /usr/bin/nekozame-fetch && test -s /usr/share/nekozame-os/fastfetch/logo-tty.txt && test -s /usr/share/nekozame-os/fastfetch/logo.png'
+check "nekozame terminal welcome" 'grep -q "nekozame" /usr/share/ublue-os/motd/template.md'
 check "bazaar" 'rpm -q bazaar'
 if [ "$V" = deck ]; then
     check "kde for desktop mode" 'rpm -q plasma-workspace'

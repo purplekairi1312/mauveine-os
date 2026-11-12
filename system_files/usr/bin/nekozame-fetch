@@ -1,0 +1,18 @@
+#!/bin/bash
+# fastfetch with the nekozame logo and colours: the logo image where the terminal
+# can show images (kitty graphics: ghostty, kitty), a text one everywhere else
+# (the tty, most ssh clients)
+D=/usr/share/nekozame-os/fastfetch
+PINK="38;2;255;192;229"
+args=(-c "$D/config.jsonc")
+if [ "${TERM:-}" = linux ]; then
+    # the text console only has its 16 colours (nekozame's, set at boot)
+    args+=(--logo-type file-raw --logo "$D/logo-tty.txt" --logo-width 34 --logo-height 16 --color magenta)
+elif [[ "${TERM:-}" == *ghostty* || "${TERM:-}" == *kitty* || -n "${KITTY_WINDOW_ID:-}" ]]; then
+    # over ssh the image has to travel as data; locally fastfetch can just point at it
+    if [ -n "${SSH_CONNECTION:-}" ]; then t=kitty; else t=kitty-direct; fi
+    args+=(--logo-type "$t" --logo "$D/logo.png" --logo-width 30 --color "$PINK")
+else
+    args+=(--logo-type file-raw --logo "$D/logo-color.txt" --logo-width 34 --logo-height 16 --color "$PINK")
+fi
+exec /usr/bin/fastfetch "${args[@]}" "$@"

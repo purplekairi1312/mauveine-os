@@ -1,0 +1,5 @@
+#!/bin/bash
+# the image this machine runs (e.g. nekozame-os:stable), and whether it's signed
+ref=$(rpm-ostree status --booted --json | jq -r '.deployments[0]."container-image-reference" // empty')
+echo -n "${ref##*/}"
+[[ "$ref" == ostree-image-signed:* ]] && echo -n " (signed)" || echo -n " (unsigned)"

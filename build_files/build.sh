@@ -97,12 +97,9 @@ rm -rf /tmp/nekozame-theme-main
 ### stay Bazzite's, because ujust and the update tools read them.
 sed -i -e 's/^PRETTY_NAME=.*/PRETTY_NAME="nekozame os"/' \
        -e 's/^LOGO=.*/LOGO=nekozame-os/' /usr/lib/os-release
-# Bazzite's fastfetch: keep its layout, show the nekozame os logo instead.
-perl -0pi -e 's/"logo":\s*\{.*?\n    \},/"logo": {\n        "type": "kitty-direct",\n        "source": "\/usr\/share\/nekozame-os\/logo.png",\n        "width": 38,\n        "padding": { "top": 1, "right": 2 }\n    },/s' \
-    /usr/share/ublue-os/bazzite/fastfetch.jsonc
-grep -q nekozame-os/logo.png /usr/share/ublue-os/bazzite/fastfetch.jsonc
 # Terminal welcome: same layout and ujust table, nekozame os title.
-sed -i '1s/.*/# Welcome to nekozame os 🦈/' /usr/share/ublue-os/motd/template.md
+# Terminal welcome: nekozame's own (system_files/usr/share/nekozame-os/motd.md)
+cp /usr/share/nekozame-os/motd.md /usr/share/ublue-os/motd/template.md
 
 ### Animated wallpaper: mpvpaper, compiled in its own stage (see Containerfile);
 ### nekozame-wallpaper in system_files runs it. It only needs libmpv here.
