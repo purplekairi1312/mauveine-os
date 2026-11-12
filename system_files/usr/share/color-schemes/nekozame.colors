@@ -1,4 +1,4 @@
-# Nekozame (Pastel Dream) for KDE Plasma. Dotfiles: config/kde/Nekozame.colors
+# nekozame (Pastel Dream) for KDE Plasma. Dotfiles: config/kde/nekozame.colors
 
 [Colors:Button]
 BackgroundAlternate=98,87,122
@@ -113,8 +113,8 @@ ForegroundPositive=200,247,220
 ForegroundVisited=227,204,255
 
 [General]
-ColorScheme=Nekozame
-Name=Nekozame
+ColorScheme=nekozame
+Name=nekozame
 shadeSortColumn=true
 
 [KDE]

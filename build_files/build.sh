@@ -1,6 +1,6 @@
 #!/bin/bash
-# Nekozame OS: Bazzite DX (NVIDIA) plus niri, DankMaterialShell and a few
-# editors and tools, with the Nekozame theme installed system-wide.
+# nekozame os: niri, DankMaterialShell, a few editors and tools, and the
+# nekozame theme, on its Bazzite DX (NVIDIA) base.
 
 set -ouex pipefail
 
@@ -19,12 +19,14 @@ dnf5 -y install emacs fuzzel ghostty
 
 ### Branding: the name and logo people see. ID, VARIANT_ID and image-info.json
 ### stay Bazzite's, because ujust and the update tools read them.
-sed -i -e 's/^PRETTY_NAME=.*/PRETTY_NAME="Nekozame OS"/' \
+sed -i -e 's/^PRETTY_NAME=.*/PRETTY_NAME="nekozame os"/' \
        -e 's/^LOGO=.*/LOGO=nekozame-os/' /usr/lib/os-release
-# Bazzite's fastfetch: keep its layout, show the Nekozame OS logo instead.
+# Bazzite's fastfetch: keep its layout, show the nekozame os logo instead.
 perl -0pi -e 's/"logo":\s*\{.*?\n    \},/"logo": {\n        "type": "kitty-direct",\n        "source": "\/usr\/share\/nekozame-os\/logo.png",\n        "width": 38,\n        "padding": { "top": 1, "right": 2 }\n    },/s' \
     /usr/share/ublue-os/bazzite/fastfetch.jsonc
 grep -q nekozame-os/logo.png /usr/share/ublue-os/bazzite/fastfetch.jsonc
+# Terminal welcome: same layout and ujust table, nekozame os title.
+sed -i '1s/.*/# Welcome to nekozame os 🦈/' /usr/share/ublue-os/motd/template.md
 
 ### Only accept updates signed with this repo's key (cosign.pub)
 jq '.transports.docker["ghcr.io/purplekairi1312/nekozame-os"] = [{
