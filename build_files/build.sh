@@ -4,6 +4,17 @@
 
 set -ouex pipefail
 
+# copr and other mirrors have bad minutes: try again a few times before failing
+retry() {
+    local n
+    for n in 1 2 3 4; do
+        "$@" && return 0
+        echo "attempt $n failed: $*; retrying in $((n * 30))s" >&2
+        sleep $((n * 30))
+    done
+    "$@"
+}
+
 # Theme files, wallpaper and configs from system_files/
 cp -avf "/ctx/system_files"/. /
 
@@ -20,13 +31,13 @@ if [ "${VARIANT:-nvidia}" != deck ]; then
         xdg-desktop-portal-kde sddm-wayland-plasma plasma-login-manager "breeze-*" \
         kwalletmanager5 bazzite-updater
     # what kde happened to be carrying that stays, and the non-kde replacements
-    dnf5 -y install virt-manager gnome-keyring pinentry-gnome3 \
+    retry dnf5 -y install virt-manager gnome-keyring pinentry-gnome3 \
         Thunar thunar-archive-plugin thunar-volman tumbler gvfs file-roller
 
-    dnf5 -y copr enable avengemedia/dms
-    dnf5 -y install niri dms dms-greeter greetd
+    retry dnf5 -y copr enable avengemedia/dms
+    retry dnf5 -y install niri dms dms-greeter greetd
     # niri's screen capture (screen sharing, sunshine) goes through the gnome portal
-    dnf5 -y install xdg-desktop-portal-gnome
+    retry dnf5 -y install xdg-desktop-portal-gnome
     dnf5 -y copr disable avengemedia/dms
     dnf5 -y copr disable avengemedia/danklinux || true
 
@@ -59,19 +70,19 @@ ln -sf /usr/lib/systemd/user/nekozame-niri-config.service \
 ### yazi, the terminal file manager (not in fedora): the official release build
 # renovate: datasource=github-releases depName=sxyazi/yazi
 YAZI=v26.9.1
-curl -fsSL -o /tmp/yazi.zip \
+retry curl -fsSL -o /tmp/yazi.zip \
     "https://github.com/sxyazi/yazi/releases/download/${YAZI}/yazi-x86_64-unknown-linux-gnu.zip"
 python3 -m zipfile -e /tmp/yazi.zip /tmp/yazi
 install -m 0755 /tmp/yazi/yazi-x86_64-unknown-linux-gnu/{yazi,ya} /usr/bin/
 rm -rf /tmp/yazi /tmp/yazi.zip
 
 ### Packages that used to be layered by hand on this machine
-dnf5 -y copr enable scottames/ghostty
-dnf5 -y install emacs fuzzel ghostty
+retry dnf5 -y copr enable scottames/ghostty
+retry dnf5 -y install emacs fuzzel ghostty
 
 ### the nekozame theme, from its own repo (github.com/purplekairi1312/nekozame-theme)
-curl -fsSL https://github.com/purplekairi1312/nekozame-theme/archive/refs/heads/main.tar.gz \
-    | tar -xz -C /tmp
+retry curl -fsSL -o /tmp/dl.tar https://github.com/purplekairi1312/nekozame-theme/archive/refs/heads/main.tar.gz
+tar -xzf /tmp/dl.tar -C /tmp && rm -f /tmp/dl.tar
 T=/tmp/nekozame-theme-main/themes
 install -Dm0644 "$T/kde/nekozame.colors" /usr/share/color-schemes/nekozame.colors
 install -Dm0644 "$T/konsole/nekozame.colorscheme" /usr/share/konsole/nekozame.colorscheme
@@ -95,17 +106,17 @@ sed -i '1s/.*/# Welcome to nekozame os 🦈/' /usr/share/ublue-os/motd/template.
 
 ### Animated wallpaper: mpvpaper, compiled in its own stage (see Containerfile);
 ### nekozame-wallpaper in system_files runs it. It only needs libmpv here.
-dnf5 -y install mpv-libs
+retry dnf5 -y install mpv-libs
 cp -avf /ctx/mpvpaper/. /
 command -v mpvpaper
 
 ### music: low latency (pipewire config + threadirqs in system_files), realtime
 ### priority, a patchbay and plugin host, plugins, wine + yabridge for windows plugins
-dnf5 -y install realtime-setup qpwgraph Carla calf lsp-plugins-lv2 wine
+retry dnf5 -y install realtime-setup qpwgraph Carla calf lsp-plugins-lv2 wine
 # renovate: datasource=github-releases depName=robbert-vdh/yabridge
 YABRIDGE=5.1.1
-curl -fsSL "https://github.com/robbert-vdh/yabridge/releases/download/${YABRIDGE}/yabridge-${YABRIDGE}.tar.gz" \
-    | tar -xz -C /tmp
+retry curl -fsSL -o /tmp/dl.tar "https://github.com/robbert-vdh/yabridge/releases/download/${YABRIDGE}/yabridge-${YABRIDGE}.tar.gz"
+tar -xzf /tmp/dl.tar -C /tmp && rm -f /tmp/dl.tar
 mkdir -p /usr/lib/yabridge
 cp -a /tmp/yabridge/. /usr/lib/yabridge/
 ln -sf /usr/lib/yabridge/yabridgectl /usr/bin/yabridgectl
@@ -115,18 +126,18 @@ rm -rf /tmp/yabridge
 ### ("quickget windows 11" downloads windows and sets up the vm). fedora's package
 ### wants mesa-demos, which bazzite's own mesa blocks; quickemu is just scripts,
 ### so take them from the release and install what they use
-dnf5 -y install qemu edk2-tools genisoimage jq pciutils socat spice-gtk-tools swtpm \
+retry dnf5 -y install qemu edk2-tools genisoimage jq pciutils socat spice-gtk-tools swtpm \
     unzip usbutils xdg-user-dirs xrandr
 # renovate: datasource=github-releases depName=quickemu-project/quickemu
 QUICKEMU=4.9.9
-curl -fsSL "https://github.com/quickemu-project/quickemu/archive/refs/tags/${QUICKEMU}.tar.gz" \
-    | tar -xz -C /tmp
+retry curl -fsSL -o /tmp/dl.tar "https://github.com/quickemu-project/quickemu/archive/refs/tags/${QUICKEMU}.tar.gz"
+tar -xzf /tmp/dl.tar -C /tmp && rm -f /tmp/dl.tar
 install -m 0755 "/tmp/quickemu-${QUICKEMU}"/{quickemu,quickget,quickreport,chunkcheck} /usr/bin/
 rm -rf "/tmp/quickemu-${QUICKEMU}"
 
 ### doom emacs: its dependencies (nekozame-doom installs doom itself per user),
 ### and the emacs daemon always running for every user (EDITOR is its client)
-dnf5 -y install ripgrep fd-find git
+retry dnf5 -y install ripgrep fd-find git
 if [ -f /usr/lib/systemd/user/emacs.service ]; then
     systemctl --global enable emacs.service
 else
@@ -135,8 +146,8 @@ fi
 
 ### sunshine, always on over tailscale: native, so kms capture works under niri (the
 ### flatpak can't get the capture right); ujust nekozame-sunshine turns it on
-dnf5 -y copr enable lizardbyte/stable
-dnf5 -y install Sunshine
+retry dnf5 -y copr enable lizardbyte/stable
+retry dnf5 -y install Sunshine
 dnf5 -y copr disable lizardbyte/stable
 setcap cap_sys_admin+p "$(readlink -f /usr/bin/sunshine)"
 
@@ -146,7 +157,7 @@ python3 /ctx/hide-recipes.py /usr/share/ublue-os/just "${VARIANT:-nvidia}"
 
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
-dnf5 -y install plymouth-plugin-script  # the theme is a plymouth script
+retry dnf5 -y install plymouth-plugin-script  # the theme is a plymouth script
 plymouth-set-default-theme nekozame
 KVER="$(ls /usr/lib/modules | head -n1)"
 dracut --no-hostonly --kver "$KVER" --reproducible --zstd -v --add ostree \

@@ -18,6 +18,7 @@ GitHub emails you. Open the failed run (Actions tab), expand the red step, scrol
 - **dnf can't install something / "filtered out by exclude filtering"**: Bazzite ships its own versions of some packages (mesa and friends) and blocks Fedora's. Don't install `-devel` packages into the image; build things in their own stage instead (see the mpvpaper stage in the [`Containerfile`](Containerfile)).
 - **A COPR has no build for the new Fedora version yet** (right after a Fedora release): wait a few days, or pin the COPR to the previous Fedora version in `build.sh`.
 - **A download 404s**: a pinned release moved. Update the version (see below).
+- **Timeouts or 503 from copr.fedorainfracloud.org or a mirror**: their servers had a bad moment. The build already retries a few times; if it still failed, run it again later (Actions → the failed run → **Re-run jobs**).
 
 Nothing breaks for users while a build is failing: they keep the last good image.
 
