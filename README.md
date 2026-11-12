@@ -53,4 +53,4 @@ cosign verify --key cosign.pub ghcr.io/purplekairi1312/nekozame-os
 ## License
 
 Code: [GPL-3.0-or-later](LICENSE).
-Art (logo, catshark, boot animation, wallpapers): mine, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). See [`LICENSE-ART`](LICENSE-ART).
+Art (logo, catshark, boot animation, wallpapers): by purplekairi1312, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). See [`LICENSE-ART`](LICENSE-ART).
