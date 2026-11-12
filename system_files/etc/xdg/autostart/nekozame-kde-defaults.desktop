@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=nekozame os defaults
+Comment=The nekozame color scheme and wallpaper on a first KDE login
+Exec=/usr/bin/nekozame-kde-defaults
+OnlyShowIn=KDE;
+NoDisplay=true
+X-KDE-autostart-phase=2

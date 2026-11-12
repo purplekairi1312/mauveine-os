@@ -6,6 +6,7 @@ ARG BASE_IMAGE=ghcr.io/ublue-os/bazzite-dx-nvidia:stable
 # Fedora, matching nekozame os's Fedora release, so no build tools touch the image
 # (Bazzite ships its own graphics drivers, which Fedora's -devel packages clash with).
 FROM registry.fedoraproject.org/fedora:45 AS mpvpaper
+# renovate: datasource=github-releases depName=GhostNaN/mpvpaper
 ARG MPVPAPER=1.9
 RUN dnf -y install gcc meson ninja-build pkgconf-pkg-config mpv-devel wayland-devel \
         wayland-protocols-devel mesa-libEGL-devel tar gzip && \
@@ -56,6 +57,11 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
     VARIANT=${VARIANT} /ctx/build.sh
+
+### SMOKE TESTS
+## If the image is missing something, fail here, so it never gets pushed.
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+    VARIANT=${VARIANT} /ctx/test.sh
 
 ### LINTING
 ## Verify final image and contents are correct.

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "commitMessageLowerCase": "auto",
+  "commitMessagePrefix": "deps:",
+  "labels": ["deps"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "versions pinned in the build: MPVPAPER=1.9 and the like",
+      "managerFilePatterns": ["/^Containerfile$/", "/^build_files/build\\.sh$/"],
+      "matchStrings": ["# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*(?:ARG )?\\w+=(?<currentValue>\\S+)"]
+    }
+  ]
+}

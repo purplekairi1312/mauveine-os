@@ -4,14 +4,17 @@
 
 Opinionated immutable distro, built on [Bazzite](https://bazzite.gg).
 
-- [niri](https://github.com/niri-wm/niri) with [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) as the desktop (KDE Plasma is still there, for now)
-- Gaming and emulation tools from Bazzite, with NVIDIA drivers
+- [niri](https://github.com/niri-wm/niri) with [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) is the whole desktop, login screen included, with no KDE (the Steam Deck image keeps KDE for Desktop Mode)
+- Thunar and yazi for files, Bazaar for apps
+- Gaming and emulation tools from Bazzite (and NVIDIA drivers on the NVIDIA image)
 - Doom Emacs as `$EDITOR`, always running as a daemon (`ujust nekozame-doom` installs it), Ghostty and fuzzel, plus Bazzite DX's dev tools
 - Audio: low-latency PipeWire, realtime priority, Wine + yabridge for Windows plugins, qpwgraph and Carla. `ujust nekozame-audio` sets up your pick of Bitwig, Reaper or Renoise (proprietary, paid), Ardour or LMMS (open source, free), plus open source plugins
 - Sunshine always on, so you can stream it from anywhere over Tailscale with Moonlight (`ujust nekozame-sunshine`)
 - Zen with Dark Reader preinstalled (import the nekozame look from `/usr/share/nekozame-os/darkreader/nekozame.json`), and Helium as an optional browser (`ujust nekozame-helium`)
 - Windows VMs with quickemu (`quickget windows 11`) on top of libvirt and virt-manager
 - A little catshark swimming as your boot screen and wallpaper (`ujust nekozame-wallpaper`), sharp on any screen shape <3
+
+[Everything it adds and removes](PACKAGES.md)
 
 ## Install
 
@@ -21,7 +24,7 @@ From Bazzite or any Universal Blue image. Your files, Flatpaks and settings stay
 |---|---|
 | PC with an NVIDIA GPU | `nekozame-os` |
 | PC or laptop with AMD or Intel graphics | `nekozame-os-amd` |
-| Steam Deck | `nekozame-os-deck` (boots Game Mode, nekozame in Desktop Mode; no DX dev tools) |
+| Steam Deck | `nekozame-os-deck` (boots Game Mode; Desktop Mode is KDE with the nekozame look, `ujust nekozame-niri` adds niri; no DX dev tools) |
 
 ```sh
 IMAGE=nekozame-os   # or nekozame-os-amd, nekozame-os-deck
@@ -30,11 +33,11 @@ IMAGE=nekozame-os   # or nekozame-os-amd, nekozame-os-deck
 sudo rpm-ostree reset
 
 # First time: unsigned, then reboot
-sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/purplekairi1312/$IMAGE:latest
+sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/purplekairi1312/$IMAGE:stable
 systemctl reboot
 
 # Then the signed image, then reboot
-sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/purplekairi1312/$IMAGE:latest
+sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/purplekairi1312/$IMAGE:stable
 systemctl reboot
 ```
 
@@ -50,12 +53,14 @@ systemctl reboot
 sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/ublue-os/bazzite-dx-nvidia:stable
 ```
 
-**How is it built?**
-GitHub Actions builds it daily from the [`Containerfile`](Containerfile) and [`build_files/build.sh`](build_files/build.sh), signed with Cosign:
+**How is it built and updated?**
+GitHub Actions builds it daily from the [`Containerfile`](Containerfile) and [`build_files/build.sh`](build_files/build.sh), and every build runs smoke tests before it's published. `:stable` gets the latest good build once a week (`:latest` is daily, for testing). Images are signed with Cosign:
 
 ```sh
 cosign verify --key cosign.pub ghcr.io/purplekairi1312/nekozame-os
 ```
+
+See [`MAINTENANCE.md`](MAINTENANCE.md) for when something breaks.
 
 ## Credits
 

@@ -1,0 +1,9 @@
+#!/bin/bash
+# on a first kde plasma login: the nekozame color scheme and wallpaper, once
+# (kde picks the wallpaper size that fits the screen). --force runs it again.
+set -euo pipefail
+DONE="${XDG_STATE_HOME:-$HOME/.local/state}/nekozame/kde-defaults"
+[ "${1:-}" = --force ] || [ ! -e "$DONE" ] || exit 0
+plasma-apply-colorscheme nekozame || true
+plasma-apply-wallpaperimage /usr/share/wallpapers/nekozame-small || true
+mkdir -p "$(dirname "$DONE")" && touch "$DONE"

@@ -1,0 +1,17 @@
+#!/bin/bash
+# nekozame-niri: install niri with dankmaterialshell (layered with rpm-ostree, then
+# reboot). for the steam deck image, where desktop mode is kde; the others have it.
+# after the reboot, log out of desktop mode and pick niri at the login screen: it
+# gets the same dms setup as the other images.
+set -euo pipefail
+if command -v niri >/dev/null; then
+    echo "niri is already installed"
+    exit 0
+fi
+f=$(rpm -E %fedora)
+for r in dms danklinux; do
+    sudo curl -fsSL -o "/etc/yum.repos.d/_copr:copr.fedorainfracloud.org:avengemedia:$r.repo" \
+        "https://copr.fedorainfracloud.org/coprs/avengemedia/$r/repo/fedora-$f/avengemedia-$r-fedora-$f.repo"
+done
+sudo rpm-ostree install niri dms xdg-desktop-portal-gnome
+echo "done. reboot, then pick niri at the login screen"

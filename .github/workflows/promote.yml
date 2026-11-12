@@ -1,0 +1,40 @@
+name: Promote to stable
+
+# Users follow :stable. Every build that passes its smoke tests becomes :latest;
+# once a week the current :latest becomes :stable, so a bad upstream day never
+# reaches anyone right away.
+# Run it by hand to promote now, or to roll everyone back: set "from" to an
+# older date tag (e.g. 20261110), see MAINTENANCE.md.
+
+on:
+  schedule:
+    - cron: '0 12 * * 0'  # sundays, 12:00 utc
+  workflow_dispatch:
+    inputs:
+      from:
+        description: 'Tag to promote (latest, or a date like 20261110)'
+        default: 'latest'
+        required: true
+
+jobs:
+  promote:
+    name: Promote ${{ matrix.image }}
+    runs-on: ubuntu-26.04
+    permissions:
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [nekozame-os, nekozame-os-amd, nekozame-os-deck]
+    env:
+      REPO: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+      FROM: ${{ inputs.from || 'latest' }}
+    steps:
+      - name: Copy the tag to stable
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.GITHUB_TOKEN }}" | skopeo login ghcr.io -u "${{ github.actor }}" --password-stdin
+          # same digest, so the existing cosign signature covers :stable too
+          skopeo copy --all --preserve-digests "docker://${REPO}:${FROM}" "docker://${REPO}:stable"
+          skopeo copy --all --preserve-digests "docker://${REPO}:${FROM}" "docker://${REPO}:stable-$(date +%Y%m%d)"
+          echo "${REPO}:stable is now ${FROM} ($(skopeo inspect --format '{{.Digest}}' "docker://${REPO}:stable"))"

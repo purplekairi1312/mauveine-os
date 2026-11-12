@@ -7,17 +7,63 @@ set -ouex pipefail
 # Theme files, wallpaper and configs from system_files/
 cp -avf "/ctx/system_files"/. /
 
-### niri + DankMaterialShell
+### niri + DankMaterialShell (not on the steam deck image: kde there, and
+### ujust nekozame-niri layers niri for whoever wants it).
 # niri comes from Fedora. DMS comes from its developers' COPR, which pulls in
 # its helper repo (avengemedia/danklinux) for dependencies such as quickshell.
-dnf5 -y copr enable avengemedia/dms
-dnf5 -y install niri dms
-# niri's screen capture (screen sharing, sunshine) goes through the gnome portal
-dnf5 -y install xdg-desktop-portal-gnome
+if [ "${VARIANT:-nvidia}" != deck ]; then
+    # the pc images have no kde at all: niri with dms is the whole desktop
+    dnf5 -y remove "plasma-*" "kwin*" "kde-*" "kdeplasma-*" "kdeconnect*" "kf5-*" "kf6-*" \
+        "kio-*" "kscreen*" "krunner*" "kwallet*" "kwrite*" "akonadi*" "baloo*" "dolphin*" \
+        "konsole*" "kate*" ark gwenview okular spectacle filelight khelpcenter kinfocenter \
+        kmenuedit kdebugsettings kdesu kdecoration "kdegraphics-*" powerdevil polkit-kde \
+        xdg-desktop-portal-kde sddm-wayland-plasma plasma-login-manager "breeze-*" \
+        kwalletmanager5 bazzite-updater
+    # what kde happened to be carrying that stays, and the non-kde replacements
+    dnf5 -y install virt-manager gnome-keyring pinentry-gnome3 \
+        Thunar thunar-archive-plugin thunar-volman tumbler gvfs file-roller
 
-# dms starts with every niri session, and a first niri login gets dms's config
-systemctl --global add-wants niri.service dms.service
-systemctl --global enable nekozame-niri-config.service
+    dnf5 -y copr enable avengemedia/dms
+    dnf5 -y install niri dms dms-greeter greetd
+    # niri's screen capture (screen sharing, sunshine) goes through the gnome portal
+    dnf5 -y install xdg-desktop-portal-gnome
+    dnf5 -y copr disable avengemedia/dms
+    dnf5 -y copr disable avengemedia/danklinux || true
+
+    # dms's login screen, on greetd
+    mkdir -p /etc/greetd
+    printf '[terminal]\nvt = 1\n\n[default_session]\nuser = "greeter"\ncommand = "dms-greeter --command niri"\n' \
+        > /etc/greetd/config.toml
+    systemctl enable greetd.service
+
+    # thunar for folders; file dialogs from the gtk portal (gnome's needs nautilus)
+    printf '[Default Applications]\ninode/directory=thunar.desktop\n' >> /usr/share/applications/mimeapps.list
+    mkdir -p /etc/xdg-desktop-portal
+    { cat /usr/share/xdg-desktop-portal/niri-portals.conf
+      echo "org.freedesktop.impl.portal.FileChooser=gtk"; } > /etc/xdg-desktop-portal/niri-portals.conf
+
+    # the kde look-setup only belongs on the deck
+    rm -f /etc/xdg/autostart/nekozame-kde-defaults.desktop
+else
+    # the deck keeps kde; niri is one ujust away
+    cat /usr/share/nekozame-os/just/deck.just >> /usr/share/ublue-os/just/60-custom.just
+fi
+
+# dms starts with every niri session, and a first niri login gets dms's config.
+# plain links, so they're ready on the deck too once niri gets layered
+mkdir -p /etc/systemd/user/niri.service.wants
+ln -sf /usr/lib/systemd/user/dms.service /etc/systemd/user/niri.service.wants/dms.service
+ln -sf /usr/lib/systemd/user/nekozame-niri-config.service \
+    /etc/systemd/user/niri.service.wants/nekozame-niri-config.service
+
+### yazi, the terminal file manager (not in fedora): the official release build
+# renovate: datasource=github-releases depName=sxyazi/yazi
+YAZI=v26.9.1
+curl -fsSL -o /tmp/yazi.zip \
+    "https://github.com/sxyazi/yazi/releases/download/${YAZI}/yazi-x86_64-unknown-linux-gnu.zip"
+python3 -m zipfile -e /tmp/yazi.zip /tmp/yazi
+install -m 0755 /tmp/yazi/yazi-x86_64-unknown-linux-gnu/{yazi,ya} /usr/bin/
+rm -rf /tmp/yazi /tmp/yazi.zip
 
 ### Packages that used to be layered by hand on this machine
 dnf5 -y copr enable scottames/ghostty
@@ -56,6 +102,7 @@ command -v mpvpaper
 ### music: low latency (pipewire config + threadirqs in system_files), realtime
 ### priority, a patchbay and plugin host, plugins, wine + yabridge for windows plugins
 dnf5 -y install realtime-setup qpwgraph Carla calf lsp-plugins-lv2 wine
+# renovate: datasource=github-releases depName=robbert-vdh/yabridge
 YABRIDGE=5.1.1
 curl -fsSL "https://github.com/robbert-vdh/yabridge/releases/download/${YABRIDGE}/yabridge-${YABRIDGE}.tar.gz" \
     | tar -xz -C /tmp
@@ -70,6 +117,7 @@ rm -rf /tmp/yabridge
 ### so take them from the release and install what they use
 dnf5 -y install qemu edk2-tools genisoimage jq pciutils socat spice-gtk-tools swtpm \
     unzip usbutils xdg-user-dirs xrandr
+# renovate: datasource=github-releases depName=quickemu-project/quickemu
 QUICKEMU=4.9.9
 curl -fsSL "https://github.com/quickemu-project/quickemu/archive/refs/tags/${QUICKEMU}.tar.gz" \
     | tar -xz -C /tmp
@@ -115,6 +163,4 @@ jq '["nekozame-os", "nekozame-os-amd", "nekozame-os-deck"] as $images
 mv /tmp/policy.json /etc/containers/policy.json
 
 # Don't leave the COPRs enabled on the finished system.
-dnf5 -y copr disable avengemedia/dms
-dnf5 -y copr disable avengemedia/danklinux || true
 dnf5 -y copr disable scottames/ghostty
