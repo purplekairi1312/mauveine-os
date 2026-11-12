@@ -90,6 +90,7 @@ install -Dm0644 "$T/kde/nekozame.colors" /usr/share/color-schemes/nekozame.color
 install -Dm0644 "$T/konsole/nekozame.colorscheme" /usr/share/konsole/nekozame.colorscheme
 install -Dm0644 "$T/ghostty/nekozame" /usr/share/ghostty/themes/nekozame
 install -Dm0644 "$T/btop/nekozame.theme" /usr/share/btop/themes/nekozame.theme
+install -Dm0644 "$T/cava/config" /usr/share/nekozame-os/cava/config
 install -Dm0644 "$T/palettes/nekozame.gpl" /usr/share/nekozame-os/nekozame.gpl
 install -Dm0644 "$T/dms/nekozame.json" /usr/share/nekozame-os/dms/nekozame.json
 install -Dm0644 "$T/darkreader/nekozame.json" /usr/share/nekozame-os/darkreader/nekozame.json
