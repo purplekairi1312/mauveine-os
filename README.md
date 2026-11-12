@@ -9,7 +9,7 @@ Opinionated immutable distro.
 - Doom Emacs as `$EDITOR`, always running as a daemon, emacs keys (evil mode or another editor if you want)
 - Low-latency audio with realtime priority for everyone, and music production on request: Bitwig, Reaper or Renoise (proprietary, paid), Ardour or LMMS (free software), a checklist of about 700 plugins from Audinux that every DAW finds, and yabridge for Microsoft Windows plugins
 - Sunshine always on, so you can stream it from anywhere over Tailscale with Moonlight
-- Zen, ready for privacy: Dark Reader, uBlock Origin, Privacy Badger, LibRedirect, ClearURLs and Consent-O-Matic, DuckDuckGo, HTTPS-only, no telemetry, no WebRTC leaks (Helium optional, with the same)
+- Zen, ready for privacy: Dark Reader, uBlock Origin, Privacy Badger, LibRedirect, ClearURLs, Consent-O-Matic and nekojs (LibreJS made simple), DuckDuckGo, HTTPS-only, no telemetry, no WebRTC leaks (Helium optional, with the same)
 - Microsoft Windows VMs with quickemu (`quickget windows 11`) on top of libvirt and virt-manager
 - A little catshark swimming as your boot screen and wallpaper, sharp on any screen shape <3
 

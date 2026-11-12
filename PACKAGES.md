@@ -30,6 +30,7 @@ On the Steam Deck image, Desktop Mode is [KDE Plasma](https://kde.org/plasma-des
 - [LibRedirect](https://github.com/libredirect/browser_extension) (privacy frontends for YouTube, Reddit and more)
 - [ClearURLs](https://github.com/ClearURLs/Addon) (strips tracking from links)
 - [Consent-O-Matic](https://consentomatic.au.dk) (rejects cookie banners)
+- [nekojs](https://git.sr.ht/~purplekairi1312/nekojs) (LibreJS made simple: blocks non-free JavaScript, off until you turn it on)
 - [DuckDuckGo](https://duckduckgo.com) (search)
 - [HTTPS-only, strict tracking protection, no telemetry, no WebRTC leaks](system_files/usr/share/nekozame-os/zen/policies/policies.json)
 
