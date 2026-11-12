@@ -11,7 +11,7 @@ Opinionated immutable distro, built on [Bazzite](https://bazzite.gg).
 - Sunshine always on, so you can stream it from anywhere over Tailscale with Moonlight (`ujust nekozame-sunshine`)
 - Zen with Dark Reader preinstalled (import the nekozame look from `/usr/share/nekozame-os/darkreader/nekozame.json`), and Helium as an optional browser (`ujust nekozame-helium`)
 - Windows VMs with quickemu (`quickget windows 11`) on top of libvirt and virt-manager
-- An animated catshark boot screen and wallpaper (`ujust nekozame-wallpaper`), sharp on any screen shape
+- A little catshark swimming in pastel water, as your boot screen and wallpaper (`ujust nekozame-wallpaper`), sharp on any screen shape <3
 
 ## Install
 
