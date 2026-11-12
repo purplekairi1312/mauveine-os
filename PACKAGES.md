@@ -19,7 +19,7 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 
 ## Look
 
-- nekozame theme (DMS, Ghostty, Emacs, KDE, Konsole, btop, Dark Reader)
+- [nekozame theme](https://git.sr.ht/~purplekairi1312/nekozame-theme)
 - animated catshark boot screen
 - animated catshark wallpaper
 
