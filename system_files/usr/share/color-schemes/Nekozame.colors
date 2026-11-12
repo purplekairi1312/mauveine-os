@@ -1,4 +1,4 @@
-# Mauveine (Pastel Dream) for KDE Plasma. Dotfiles: config/kde/Mauveine.colors
+# Nekozame (Pastel Dream) for KDE Plasma. Dotfiles: config/kde/Nekozame.colors
 
 [Colors:Button]
 BackgroundAlternate=98,87,122
@@ -113,8 +113,8 @@ ForegroundPositive=200,247,220
 ForegroundVisited=227,204,255
 
 [General]
-ColorScheme=Mauveine
-Name=Mauveine
+ColorScheme=Nekozame
+Name=Nekozame
 shadeSortColumn=true
 
 [KDE]

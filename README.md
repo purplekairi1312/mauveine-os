@@ -5,7 +5,7 @@
 A pastel [Bazzite](https://bazzite.gg) by purplekairi1312: Bazzite DX with
 NVIDIA drivers, plus the [niri](https://github.com/niri-wm/niri) scrolling
 window manager, [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell)
-and the **Mauveine** theme.
+and the **Nekozame** theme.
 
 *Nekozame* (猫鮫) is Japanese for catshark: a small, gentle shark with
 cat-like eyes. Cat plus shark, so a catgirl shark.
@@ -20,9 +20,9 @@ every Bazzite update.
 | Desktop | niri and DankMaterialShell, next to Bazzite's KDE Plasma. Choose either on the login screen. |
 | Apps | Emacs, Ghostty, fuzzel |
 | Look | The Nekozame OS name and logo (fastfetch, About this System, boot menu) |
-| Theme | Mauveine color scheme for KDE, a Ghostty theme, a wallpaper and a `.gpl` swatch palette for Krita, GIMP and Aseprite |
+| Theme | Nekozame color scheme for KDE, a Ghostty theme, a wallpaper and a `.gpl` swatch palette for Krita, GIMP and Aseprite |
 
-## Mauveine
+## Nekozame
 
 A soft lavender background with pastel pink, baby blue, mint, lemon and lilac.
 Dark, but only a little.
@@ -35,10 +35,10 @@ Dark, but only a little.
 
 Theme files after install:
 
-- KDE: System Settings → Colors → **Mauveine**
-- Ghostty: `theme = mauveine`
-- Wallpaper: System Settings → Wallpaper → **Mauveine**
-- Art palette: `/usr/share/mauveine/mauveine.gpl`
+- KDE: System Settings → Colors → **Nekozame**
+- Ghostty: `theme = nekozame`
+- Wallpaper: System Settings → Wallpaper → **Nekozame**
+- Art palette: `/usr/share/nekozame-os/nekozame.gpl`
 
 ## Switch an existing Bazzite to it
 

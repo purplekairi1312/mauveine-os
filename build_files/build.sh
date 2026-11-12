@@ -1,6 +1,6 @@
 #!/bin/bash
 # Nekozame OS: Bazzite DX (NVIDIA) plus niri, DankMaterialShell and a few
-# editors and tools, with the Mauveine theme installed system-wide.
+# editors and tools, with the Nekozame theme installed system-wide.
 
 set -ouex pipefail
 
