@@ -2,7 +2,7 @@
 
 <p align="center"><img src="docs/logo.gif" alt="nekozame os logo: a pixelated catshark swimming above the chrome letters nekozame os and 猫鮫 in a bubble, underwater" width="640"></p>
 
-my opinionated immutable distro, built on [bazzite](https://bazzite.gg).
+opinionated immutable distro, built on [bazzite](https://bazzite.gg).
 
 ## install
 
