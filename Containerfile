@@ -16,9 +16,13 @@ COPY build_files /
 COPY system_files /system_files
 COPY --from=mpvpaper /out /mpvpaper
 
-# Base Image
-# Your current Bazzite: the developer edition with NVIDIA drivers.
-FROM ghcr.io/ublue-os/bazzite-dx-nvidia:stable
+# Base image: one per variant (the workflow builds all three)
+#   nekozame-os       bazzite-dx-nvidia   nvidia pcs
+#   nekozame-os-amd   bazzite-dx          amd / intel pcs and laptops
+#   nekozame-os-deck  bazzite-deck        steam deck
+ARG BASE_IMAGE=ghcr.io/ublue-os/bazzite-dx-nvidia:stable
+FROM ${BASE_IMAGE}
+ARG VARIANT=nvidia
 ## Other possible base images include:
 # FROM ghcr.io/ublue-os/bazzite:testing
 # FROM ghcr.io/ublue-os/aurora:stable
@@ -48,7 +52,7 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
-    /ctx/build.sh
+    VARIANT=${VARIANT} /ctx/build.sh
 
 ### LINTING
 ## Verify final image and contents are correct.

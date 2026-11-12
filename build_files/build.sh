@@ -94,7 +94,7 @@ setcap cap_sys_admin+p "$(readlink -f /usr/bin/sunshine)"
 
 ### ujust: hide bazzite's recipes that don't fit (deck, handhelds, other hardware,
 ### bazzite branding) and the ones nekozame os wraps under its own names
-python3 /ctx/hide-recipes.py /usr/share/ublue-os/just
+python3 /ctx/hide-recipes.py /usr/share/ublue-os/just "${VARIANT:-nvidia}"
 
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
@@ -106,11 +106,12 @@ dracut --no-hostonly --kver "$KVER" --reproducible --zstd -v --add ostree \
 chmod 0600 "/usr/lib/modules/$KVER/initramfs.img"
 
 ### Only accept updates signed with this repo's key (cosign.pub)
-jq '.transports.docker["ghcr.io/purplekairi1312/nekozame-os"] = [{
+jq '["nekozame-os", "nekozame-os-amd", "nekozame-os-deck"] as $images
+    | reduce $images[] as $i (.; .transports.docker["ghcr.io/purplekairi1312/\($i)"] = [{
       "type": "sigstoreSigned",
       "keyPath": "/etc/pki/containers/nekozame-os.pub",
       "signedIdentity": {"type": "matchRepository"}
-    }]' /etc/containers/policy.json > /tmp/policy.json
+    }])' /etc/containers/policy.json > /tmp/policy.json
 mv /tmp/policy.json /etc/containers/policy.json
 
 # Don't leave the COPRs enabled on the finished system.

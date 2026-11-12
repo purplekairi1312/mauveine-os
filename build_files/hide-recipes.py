@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """hide bazzite's ujust recipes that don't fit nekozame os, or that nekozame os
-wraps under its own names (60-custom.just). they stay runnable, just unlisted:
+wraps under its own names (60-custom.just). the steam deck ones stay on the deck
+image (usage: hide-recipes.py JUSTDIR VARIANT). they stay runnable, just unlisted:
 each gets a [private] attribute. a recipe that's gone only warns."""
 import glob
 import re
 import sys
 
-HIDE = """
+DECK = """
 add-updater-to-steam check-idle-power-draw configure-opengamepadui
 disable-bios-updates disable-firmware-updates enable-deck-bios-firmware-updates
 install-deckhd-bios disable-ryzenadj-max-performance enable-ryzenadj-max-performance
@@ -14,6 +15,9 @@ disable-sdgyrodsu get-decky-bazzite-buddy get-decky-lossless-scaling get-framege
 setup-decky restore-virtual-keyboard set-default-desktop set-default-game-mode
 switch-to-ext4 toggle-gamemode restore-gamemode-shortcut steamos-automount
 generate-inputplumber-ignorelist restore-input-remapper cec-mode cec-sleep
+""".split()
+
+HIDE = """
 asus enable-framework-fan-control toggle-i915-sleep-fix configure-broadcom-wl
 install-displaylink install-openrazer configure-amd-hdmi21
 disable-framework-automount enable-framework-automount
@@ -24,6 +28,9 @@ distrobox-new setup-virtual-channels install-fonts bios
 """.split()
 
 root = sys.argv[1] if len(sys.argv) > 1 else "/usr/share/ublue-os/just"
+variant = sys.argv[2] if len(sys.argv) > 2 else "nvidia"
+if variant != "deck":  # the deck image keeps its steam deck recipes
+    HIDE += DECK
 found = set()
 for path in sorted(glob.glob(f"{root}/*.just")):
     lines = open(path, encoding="utf-8").read().split("\n")

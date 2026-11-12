@@ -24,6 +24,23 @@ jobs:
   build_push:
     name: Build and push image
     runs-on: ubuntu-26.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: nekozame-os
+            base: ghcr.io/ublue-os/bazzite-dx-nvidia:stable
+            variant: nvidia
+          - image: nekozame-os-amd
+            base: ghcr.io/ublue-os/bazzite-dx:stable
+            variant: amd
+          - image: nekozame-os-deck
+            base: ghcr.io/ublue-os/bazzite-deck:stable
+            variant: deck
+    env:
+      IMAGE_NAME: ${{ matrix.image }}
+      BASE_IMAGE: ${{ matrix.base }}
+      VARIANT: ${{ matrix.variant }}
 
     permissions:
       contents: read
@@ -45,13 +62,6 @@ jobs:
         shell: bash
         run: |
           just check
-
-      - name: Image Name
-        id: image-name
-        run: |
-          IMAGE_NAME=$(just image_name)
-
-          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
 
       - name: Default Tag
         id: gen-default-tag

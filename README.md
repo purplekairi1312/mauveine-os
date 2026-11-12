@@ -15,18 +15,26 @@ Opinionated immutable distro, built on [Bazzite](https://bazzite.gg).
 
 ## Install
 
-From Bazzite (DX, NVIDIA) or any Universal Blue image. Your files, Flatpaks and settings stay.
+From Bazzite or any Universal Blue image. Your files, Flatpaks and settings stay. Pick the image for your machine:
+
+| Machine | Image |
+|---|---|
+| PC with an NVIDIA GPU | `nekozame-os` |
+| PC or laptop with AMD or Intel graphics | `nekozame-os-amd` |
+| Steam Deck | `nekozame-os-deck` (boots Game Mode, nekozame in Desktop Mode; no DX dev tools) |
 
 ```sh
+IMAGE=nekozame-os   # or nekozame-os-amd, nekozame-os-deck
+
 # Drop anything you layered yourself
 sudo rpm-ostree reset
 
 # First time: unsigned, then reboot
-sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/purplekairi1312/nekozame-os:latest
+sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/purplekairi1312/$IMAGE:latest
 systemctl reboot
 
 # Then the signed image, then reboot
-sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/purplekairi1312/nekozame-os:latest
+sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/purplekairi1312/$IMAGE:latest
 systemctl reboot
 ```
 
@@ -38,6 +46,7 @@ systemctl reboot
 **Going back to Bazzite?**
 
 ```sh
+# bazzite-dx-nvidia, bazzite-dx or bazzite-deck, matching your nekozame os image
 sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/ublue-os/bazzite-dx-nvidia:stable
 ```
 

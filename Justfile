@@ -99,6 +99,9 @@ build $target_image=image_name $tag=default_tag:
     set -euox pipefail
 
     BUILD_ARGS=()
+    # variant: which bazzite base (see Containerfile); defaults to the nvidia one
+    [[ -n "${BASE_IMAGE:-}" ]] && BUILD_ARGS+=("--build-arg" "BASE_IMAGE=${BASE_IMAGE}")
+    [[ -n "${VARIANT:-}" ]] && BUILD_ARGS+=("--build-arg" "VARIANT=${VARIANT}")
     LABELS=()
     if [[ -z "$(git status -s)" ]]; then
         GIT_SHA=$(git rev-parse --short HEAD)
