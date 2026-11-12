@@ -44,7 +44,10 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 
 - Wine (Windows apps)
 - quickemu (Windows VMs)
-- virt-manager (VMs)
+
+## VMs
+
+- virt-manager (any VM)
 
 ## Streaming
 
