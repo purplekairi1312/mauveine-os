@@ -18,7 +18,7 @@ cat-like eyes. Cat plus shark, so a catgirl shark.
 | Gaming | Steam, Proton, NVIDIA drivers and gaming tweaks |
 | Development | Emacs, Ghostty, VS Code, containers (Podman, Docker, Distrobox) |
 | Look | The nekozame name and logo in fastfetch, About this System and the boot menu |
-| Theme | nekozame for KDE and Ghostty, a wallpaper, and a `.gpl` swatch palette for Krita, GIMP and Aseprite |
+| Theme | nekozame for KDE and Ghostty, and a `.gpl` swatch palette for Krita, GIMP and Aseprite |
 | Updates | Atomic and signed: built every day, installed in the background, and the previous version stays in the boot menu |
 
 ## nekozame theme
@@ -36,7 +36,6 @@ Where to find it:
 
 - KDE: System Settings → Colors → **nekozame**
 - Ghostty: `theme = nekozame`
-- Wallpaper: System Settings → Wallpaper → **nekozame**
 - Art palette: `/usr/share/nekozame-os/nekozame.gpl`
 
 ## Install
