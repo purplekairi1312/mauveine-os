@@ -91,6 +91,7 @@ install -Dm0644 "$T/btop/nekozame.theme" /usr/share/btop/themes/nekozame.theme
 install -Dm0644 "$T/palettes/nekozame.gpl" /usr/share/nekozame-os/nekozame.gpl
 install -Dm0644 "$T/dms/nekozame.json" /usr/share/nekozame-os/dms/nekozame.json
 install -Dm0644 "$T/darkreader/nekozame.json" /usr/share/nekozame-os/darkreader/nekozame.json
+install -Dm0644 "$T/emacs/nekozame-theme.el" /usr/share/nekozame-os/emacs/nekozame-theme.el
 rm -rf /tmp/nekozame-theme-main
 
 ### Branding: the name and logo people see. ID, VARIANT_ID and image-info.json
@@ -107,17 +108,11 @@ retry dnf5 -y install mpv-libs
 cp -avf /ctx/mpvpaper/. /
 command -v mpvpaper
 
-### music: low latency (pipewire config + threadirqs in system_files), realtime
-### priority, a patchbay and plugin host, plugins, wine + yabridge for windows plugins
-retry dnf5 -y install realtime-setup qpwgraph Carla calf lsp-plugins-lv2 wine
-# renovate: datasource=github-releases depName=robbert-vdh/yabridge
-YABRIDGE=5.1.1
-retry curl -fsSL -o /tmp/dl.tar "https://github.com/robbert-vdh/yabridge/releases/download/${YABRIDGE}/yabridge-${YABRIDGE}.tar.gz"
-tar -xzf /tmp/dl.tar -C /tmp && rm -f /tmp/dl.tar
-mkdir -p /usr/lib/yabridge
-cp -a /tmp/yabridge/. /usr/lib/yabridge/
-ln -sf /usr/lib/yabridge/yabridgectl /usr/bin/yabridgectl
-rm -rf /tmp/yabridge
+### audio, for everyone: low latency (pipewire config + threadirqs in system_files),
+### realtime priority (limits.d in system_files), a patchbay, and wine (games, apps,
+### and windows plugins once nekozame-music sets up yabridge). daws and plugins are
+### per user: nekozame-music
+retry dnf5 -y install realtime-setup qpwgraph wine
 
 ### windows vms: quickemu on top of dx's libvirt/qemu/swtpm/ovmf
 ### ("quickget windows 11" downloads windows and sets up the vm). fedora's package
@@ -132,7 +127,7 @@ tar -xzf /tmp/dl.tar -C /tmp && rm -f /tmp/dl.tar
 install -m 0755 "/tmp/quickemu-${QUICKEMU}"/{quickemu,quickget,quickreport,chunkcheck} /usr/bin/
 rm -rf "/tmp/quickemu-${QUICKEMU}"
 
-### doom emacs: its dependencies (nekozame-doom installs doom itself per user),
+### doom emacs: its dependencies (nekozame-setup installs doom itself per user),
 ### and the emacs daemon always running for every user (EDITOR is its client)
 retry dnf5 -y install ripgrep fd-find git
 if [ -f /usr/lib/systemd/user/emacs.service ]; then

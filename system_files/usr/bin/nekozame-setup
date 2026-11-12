@@ -1,0 +1,109 @@
+#!/bin/bash
+# nekozame-setup: setting up nekozame os for your user. opens by itself on the first
+# login; run it again any time with ujust nekozame-setup. what's done stays done.
+#   on for everyone: zen with the privacy extensions, tailscale, sunshine,
+#   doom emacs, the theme and wallpaper
+#   asked: logging in automatically, evil mode or another editor, music
+#   production, helium
+set -uo pipefail
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/nekozame"
+DONE="$STATE/setup-done"
+
+if [ "${1:-}" = --first-run ]; then
+    [ -e "$DONE" ] && exit 0
+    if [ ! -t 0 ]; then  # from autostart: open in a terminal
+        for t in ghostty konsole; do
+            command -v "$t" >/dev/null && exec "$t" -e "$0" --first-run
+        done
+        exit 0
+    fi
+fi
+mkdir -p "$STATE"
+
+pink() { gum style --foreground "#ffc0e5" --bold "$*"; }
+step() { echo; pink "▸ $*"; }
+ask() { gum confirm --default="${2:-true}" "$1"; }  # ask QUESTION [false]
+ok() { echo "  ✓ $*"; }
+
+gum style --border rounded --border-foreground "#ffc0e5" --padding "0 2" \
+    "nekozame os setup 🦈" "" "the defaults are already picked: press enter to keep them."
+if ! ask "Set up now? (later: ujust nekozame-setup)"; then
+    touch "$DONE"; exit 0
+fi
+
+step "Zen browser"
+if flatpak info app.zen_browser.zen >/dev/null 2>&1; then
+    ok "installed"
+else
+    flatpak install --system -y flathub app.zen_browser.zen && ok "installed"
+fi
+echo "  dark reader, ublock origin, privacy badger, libredirect, clearurls and"
+echo "  consent-o-matic come with it; duckduckgo, https-only, no telemetry."
+
+step "Tailscale"
+if tailscale status >/dev/null 2>&1; then
+    ok "logged in"
+elif ask "Log in to Tailscale? (Sunshine and SSH between your machines go through it)"; then
+    sudo systemctl enable --now tailscaled
+    sudo tailscale set --operator="$USER"  # tailscale works without sudo after this
+    tailscale login && ok "logged in"
+fi
+
+step "Sunshine (stream this machine to Moonlight)"
+sunshine_on() {
+    local u
+    for u in app-dev.lizardbyte.app.Sunshine.service sunshine.service; do
+        systemctl --user is-enabled -q "$u" 2>/dev/null && return 0
+    done
+    return 1
+}
+if sunshine_on; then
+    ok "on"
+elif ask "Turn on Sunshine, always running over Tailscale?"; then
+    NEKOZAME_SETUP=1 nekozame-sunshine
+fi
+
+if [ -f /etc/greetd/config.toml ]; then  # the deck starts in game mode by itself
+    step "Logging in automatically"
+    if nekozame-autologin status >/dev/null; then
+        ok "on"
+    else
+        sunshine_on && d=true || d=false
+        if ask "Log in automatically at boot? (good for streaming: there's always a desktop)" $d; then
+            nekozame-autologin on
+        fi
+    fi
+fi
+
+step "Editor"
+if [ -x "$HOME/.config/emacs/bin/doom" ]; then
+    ok "doom emacs (change it: ujust nekozame-editor)"
+elif [ -s "$HOME/.config/nekozame/editor" ]; then
+    ok "$(cat "$HOME/.config/nekozame/editor") (change it: ujust nekozame-editor)"
+else
+    DOOM="Doom Emacs (emacs keys)"; EVIL="Doom Emacs with evil mode (vim keys)"; OWN="Another editor"
+    case "$(gum choose --header "Your editor (\$EDITOR):" --selected="$DOOM" "$DOOM" "$EVIL" "$OWN")" in
+        "$DOOM") nekozame-doom ;;
+        "$EVIL") nekozame-doom --evil ;;
+        "$OWN") nekozame-editor ;;
+    esac
+fi
+
+step "Music production"
+if command -v yabridgectl >/dev/null || [ -x "$HOME/.local/bin/yabridgectl" ]; then
+    ok "set up (more DAWs: ujust nekozame-music)"
+elif ask "Set up music production? (DAWs, plugins, Windows plugins)" false; then
+    nekozame-music
+fi
+
+step "Helium (a second browser, optional)"
+if [ -x "$HOME/.local/bin/helium" ]; then
+    ok "installed"
+elif ask "Install Helium? It gets the same extensions and settings as Zen" false; then
+    nekozame-helium
+fi
+
+touch "$DONE"
+echo; pink "all set <3"
+echo "  everything nekozame: ujust (the [nekozame] ones)"
+if [ "${1:-}" = --first-run ]; then read -r -p "  press enter to close " _; fi

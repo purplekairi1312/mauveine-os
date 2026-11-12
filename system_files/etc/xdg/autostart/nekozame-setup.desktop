@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=nekozame setup
+Comment=Setting up nekozame os, on the first login
+Exec=/usr/bin/nekozame-setup --first-run
+NoDisplay=true

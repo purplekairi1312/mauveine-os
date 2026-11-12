@@ -3,8 +3,8 @@
 #   native sunshine (in the image, with the kms capture right), so it captures the
 #   screen under niri, kde or anything, and runs from boot (linger), even when
 #   nobody's at the machine. your flatpak/brew sunshine settings and paired devices
-#   carry over, then the flatpak and brew versions are removed. optionally logs you
-#   in to niri at boot, so there's always a desktop.
+#   carry over, then the flatpak and brew versions are removed. offers logging you
+#   in to niri at boot (nekozame-autologin), so there's always a desktop.
 set -euo pipefail
 
 CONF="$HOME/.config/sunshine"
@@ -59,22 +59,10 @@ fi
 sudo loginctl enable-linger "$USER"
 systemctl --user enable --now "$unit"
 
-read -r -p "log in to niri automatically at boot, so there's always a desktop to stream? [y/N] " a
-if [[ "${a,,}" == y* ]]; then
-    if [ -f /etc/greetd/config.toml ]; then
-        # greetd's own autologin: straight into niri at boot, the greeter after logout
-        sudo python3 - "$USER" <<'PY'
-import re, sys
-p = "/etc/greetd/config.toml"
-s = re.sub(r"\n?\[initial_session\][^\[]*", "", open(p).read()).rstrip() + "\n"
-s += f'\n[initial_session]\nuser = "{sys.argv[1]}"\ncommand = "niri-session"\n'
-open(p, "w").write(s)
-PY
-    else
-        printf '[Autologin]\nUser=%s\nSession=niri.desktop\n' "$USER" \
-            | sudo tee /etc/sddm.conf.d/zz-nekozame-autologin.conf >/dev/null
-    fi
-    echo "autologin: niri, from the next boot"
+# nekozame-setup asks this itself
+if [ -z "${NEKOZAME_SETUP:-}" ] && [ -f /etc/greetd/config.toml ] && ! nekozame-autologin status >/dev/null; then
+    read -r -p "log in to niri automatically at boot, so there's always a desktop to stream? [y/N] " a
+    if [[ "${a,,}" == y* ]]; then nekozame-autologin on; fi
 fi
 
 ip=$(tailscale ip -4 2>/dev/null | head -1 || true)

@@ -1,0 +1,104 @@
+#!/bin/bash
+# nekozame-music [bitwig] [reaper] [ardour] [lmms] [renoise FILE.tar.gz]
+# music production for your user (the low-latency audio is already on for everyone):
+#   the daws you pick, from flathub, with open source plugins built for each one's
+#   runtime, carla (plugin host), and yabridge for windows plugins
+# daws:
+#   bitwig  bitwig studio   proprietary, paid
+#   reaper  reaper          proprietary, paid (free evaluation)
+#   ardour  ardour          open source (gpl), free
+#   lmms    lmms            open source (gpl), free
+#   renoise renoise         proprietary, paid (free demo): not on flathub, so download the linux
+#                           tarball (demo or your full version) from renoise.com and
+#                           pass it; it's installed natively into ~/.local
+# no arguments: asks which ones.
+set -euo pipefail
+
+declare -A APP=([bitwig]=com.bitwig.BitwigStudio [reaper]=fm.reaper.Reaper
+                [ardour]=org.ardour.Ardour [lmms]=io.lmms.LMMS)
+PLUGINS="Dexed Cardinal Helm Geonkick Calf LSP x42Plugins ZamPlugins DragonflyReverb Surge-XT"
+# renovate: datasource=github-releases depName=robbert-vdh/yabridge
+YABRIDGE=5.1.1
+
+daws=(); RENOISE_TAR=""
+while [ $# -gt 0 ]; do
+    if [ "$1" = renoise ]; then RENOISE_TAR="${2:-}"; shift $(( $# > 1 ? 2 : 1 ))
+    else daws+=("$1"); shift; fi
+done
+[ -z "$RENOISE_TAR" ] || [ -f "$RENOISE_TAR" ] || { echo "no such file: $RENOISE_TAR" >&2; exit 1; }
+if [ ${#daws[@]} -eq 0 ] && [ -z "$RENOISE_TAR" ]; then
+    mapfile -t picked < <(gum choose --no-limit --header "Which DAWs? (space to pick, enter when done)" \
+        "bitwig (paid)" "reaper (paid, free evaluation)" "renoise (paid, free demo)" \
+        "ardour (free software)" "lmms (free software)")
+    for p in "${picked[@]+"${picked[@]}"}"; do
+        if [ "${p%% *}" = renoise ]; then
+            echo "renoise isn't on flathub: get the linux tarball (demo or full) from renoise.com"
+            RENOISE_TAR=$(gum input --placeholder "path to Renoise_*_Linux_x86_64.tar.gz (empty: skip)")
+            [ -z "$RENOISE_TAR" ] || [ -f "$RENOISE_TAR" ] || { echo "no such file: $RENOISE_TAR" >&2; exit 1; }
+        else
+            daws+=("${p%% *}")
+        fi
+    done
+fi
+for d in "${daws[@]+"${daws[@]}"}"; do
+    [ -n "${APP[$d]:-}" ] || { echo "unknown daw: $d" >&2; exit 1; }
+done
+
+# realtime priority comes with an admin account (wheel); everyone else joins the group
+id -nG | grep -qw wheel || sudo usermod -aG realtime,audio "$USER"
+
+flatpak install -y --user flathub studio.kx.carla
+
+branches=()
+for d in "${daws[@]+"${daws[@]}"}"; do
+    flatpak install -y --user flathub "${APP[$d]}"
+    # plugins are flatpak extensions and must match the daw's runtime branch
+    rt=$(flatpak info --user --show-runtime "${APP[$d]}")   # e.g. org.freedesktop.Platform/x86_64/25.08
+    b=${rt##*/}; branches+=("${b##*-}")                    # kde's 5.15-25.08 -> 25.08
+done
+for b in $(printf '%s\n' "${branches[@]+"${branches[@]}"}" | sort -u); do
+    for p in $PLUGINS; do
+        flatpak install -y --user flathub "org.freedesktop.LinuxAudio.Plugins.$p//$b" 2>/dev/null \
+            || echo "($p isn't built for $b yet, skipped)"
+    done
+done
+
+if [ -n "$RENOISE_TAR" ]; then
+    # renoise runs from its own folder; keep it in ~/.local/opt with a launcher
+    dest="$HOME/.local/opt"; mkdir -p "$dest" "$HOME/.local/bin" "$HOME/.local/share/applications"
+    top=$(tar -tzf "$RENOISE_TAR" | head -1 | cut -d/ -f1)
+    rm -rf "${dest:?}/$top"; tar -xzf "$RENOISE_TAR" -C "$dest"
+    bin=$(find "$dest/$top" -maxdepth 1 -type f -name 'renoise*' -perm -u+x | head -1)
+    ln -sf "$bin" "$HOME/.local/bin/renoise"
+    icon=$(find "$dest/$top" -name 'renoise.png' | head -1)
+    cat > "$HOME/.local/share/applications/renoise.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Renoise
+Exec=$HOME/.local/bin/renoise %f
+Icon=${icon:-audio-x-generic}
+Categories=AudioVideo;Audio;
+DESKTOP
+    echo "renoise installed: $bin"
+fi
+
+# yabridge: windows plugins in linux daws, through wine (in the image).
+# its usual home, ~/.local/share/yabridge; run this again to update it
+Y="$HOME/.local/share/yabridge"
+if [ "$("$Y/yabridgectl" --version 2>/dev/null | awk '{print $2}')" != "$YABRIDGE" ]; then
+    tmp=$(mktemp -d)
+    curl -fL -o "$tmp/y.tar.gz" \
+        "https://github.com/robbert-vdh/yabridge/releases/download/${YABRIDGE}/yabridge-${YABRIDGE}.tar.gz"
+    rm -rf "$Y"; mkdir -p "$HOME/.local/share" "$HOME/.local/bin"
+    tar -xzf "$tmp/y.tar.gz" -C "$HOME/.local/share"; rm -rf "$tmp"
+fi
+ln -sf "$Y/yabridgectl" "$HOME/.local/bin/yabridgectl"
+yabridgectl() { "$Y/yabridgectl" "$@"; }
+# where windows plugin installers put things inside wine
+C="${WINEPREFIX:-$HOME/.wine}/drive_c/Program Files"
+mkdir -p "$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins"
+for dir in "$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins"; do
+    yabridgectl add "$dir" 2>/dev/null || true
+done
+echo "done."
+echo "windows plugins: install them with wine, then run: yabridgectl sync"

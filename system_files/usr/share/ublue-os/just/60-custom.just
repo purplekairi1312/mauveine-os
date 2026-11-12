@@ -1,14 +1,34 @@
 # nekozame os recipes (bazzite imports this file)
 
-# Set up audio: realtime priority, DAWs (bitwig, reaper, renoise, ardour, lmms) and plugins
+# Set up nekozame os for your user (opens by itself on the first login)
 [group('nekozame')]
-nekozame-audio *DAWS:
-    /usr/bin/nekozame-audio {{ DAWS }}
+nekozame-setup:
+    /usr/bin/nekozame-setup
 
-# Install Doom Emacs, or sync it if it's already there
+# Audio latency: low (default), normal (for crackles) or status
 [group('nekozame')]
-nekozame-doom:
-    /usr/bin/nekozame-doom
+nekozame-audio LATENCY="status":
+    /usr/bin/nekozame-audio {{ LATENCY }}
+
+# Music production: DAWs (bitwig, reaper, renoise, ardour, lmms), plugins, yabridge
+[group('nekozame')]
+nekozame-music *DAWS:
+    /usr/bin/nekozame-music {{ DAWS }}
+
+# Your editor: doom (default), neovim, helix, micro, nano or any command
+[group('nekozame')]
+nekozame-editor EDITOR="":
+    /usr/bin/nekozame-editor {{ EDITOR }}
+
+# Install Doom Emacs or sync it; --evil or --no-evil switches evil mode
+[group('nekozame')]
+nekozame-doom FLAG="":
+    /usr/bin/nekozame-doom {{ FLAG }}
+
+# Log in automatically at boot: on, off or status
+[group('nekozame')]
+nekozame-autologin ACTION="status":
+    /usr/bin/nekozame-autologin {{ ACTION }}
 
 # Animated catshark wallpaper: big, small (default), none or stop
 [group('nekozame')]

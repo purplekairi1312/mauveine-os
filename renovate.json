@@ -8,7 +8,7 @@
     {
       "customType": "regex",
       "description": "versions pinned in the build: MPVPAPER=1.9 and the like",
-      "managerFilePatterns": ["/^Containerfile$/", "/^build_files/build\\.sh$/"],
+      "managerFilePatterns": ["/^Containerfile$/", "/^build_files/build\\.sh$/", "/^system_files/usr/bin/nekozame-music$/"],
       "matchStrings": ["# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*(?:ARG )?\\w+=(?<currentValue>\\S+)"]
     }
   ]

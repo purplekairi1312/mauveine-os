@@ -1,0 +1,29 @@
+#!/bin/bash
+# nekozame-autologin [on|off|status]: log in to niri automatically at boot (greetd
+# logs you in once at boot; logging out still shows the login screen).
+# not on the steam deck image: it starts in game mode by itself.
+set -euo pipefail
+C=/etc/greetd/config.toml
+[ -f "$C" ] || { echo "no greetd here (the steam deck starts in game mode by itself)"; exit 0; }
+case "${1:-status}" in
+    on)
+        sudo python3 - "$USER" <<'PY'
+import re, sys
+p = "/etc/greetd/config.toml"
+s = re.sub(r"\n?\[initial_session\][^\[]*", "", open(p).read()).rstrip() + "\n"
+s += f'\n[initial_session]\nuser = "{sys.argv[1]}"\ncommand = "niri-session"\n'
+open(p, "w").write(s)
+PY
+        echo "autologin on, from the next boot" ;;
+    off)
+        sudo python3 - <<'PY'
+import re
+p = "/etc/greetd/config.toml"
+s = re.sub(r"\n?\[initial_session\][^\[]*", "", open(p).read()).rstrip() + "\n"
+open(p, "w").write(s)
+PY
+        echo "autologin off" ;;
+    status)
+        if grep -q '^\[initial_session\]' "$C"; then echo on; else echo off; exit 1; fi ;;
+    *) echo "usage: nekozame-autologin [on|off|status]" >&2; exit 2 ;;
+esac

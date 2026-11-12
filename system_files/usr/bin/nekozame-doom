@@ -1,12 +1,33 @@
 #!/bin/bash
-# installs doom emacs into ~/.config/emacs and syncs it.
-# your own doom config (~/.config/doom) is kept; bring it from your dotfiles.
+# nekozame-doom [--evil|--no-evil]: doom emacs for your user, in ~/.config/emacs.
+#   new install: doom's own config in ~/.config/doom, with the nekozame theme and
+#   emacs keys (--evil for vim keys). an existing ~/.config/doom (your dotfiles) is
+#   used as it is.
+#   already installed: syncs it; --evil / --no-evil switch evil mode.
 set -euo pipefail
 DOOM="$HOME/.config/emacs"
+DOOMDIR="${DOOMDIR:-$HOME/.config/doom}"
+evil=""
+case "${1:-}" in --evil) evil=on ;; --no-evil) evil=off ;; esac
+
 if [ ! -d "$DOOM/.git" ]; then
+    fresh=""; [ -e "$DOOMDIR" ] || { fresh=1; evil="${evil:-off}"; }
     if [ -e "$DOOM" ]; then mv "$DOOM" "$DOOM.bak.$(date +%s)"; fi
     git clone --depth 1 https://github.com/doomemacs/doomemacs "$DOOM"
     "$DOOM/bin/doom" install --force
-else
-    "$DOOM/bin/doom" sync
+    if [ -n "$fresh" ]; then
+        # the nekozame theme, from the image
+        sed -i "s|^(setq doom-theme 'doom-one)|(add-to-list 'custom-theme-load-path \"/usr/share/nekozame-os/emacs/\")\n(setq doom-theme 'nekozame)|" \
+            "$DOOMDIR/config.el"
+    fi
 fi
+# evil mode: doom's init.el has (evil +everywhere), on in doom's own template
+case "$evil" in
+    on)  sed -i 's/^\(\s*\);;\s*(evil +everywhere)/\1(evil +everywhere)/' "$DOOMDIR/init.el" ;;
+    off) sed -i 's/^\(\s*\)(evil +everywhere)/\1;;(evil +everywhere)/' "$DOOMDIR/init.el" ;;
+esac
+"$DOOM/bin/doom" sync
+systemctl --user unmask emacs.service 2>/dev/null || true
+systemctl --user restart emacs.service 2>/dev/null || true
+rm -f "$HOME/.config/nekozame/editor"  # doom is the editor again
+echo "doom emacs ready${evil:+ (evil $evil)}"

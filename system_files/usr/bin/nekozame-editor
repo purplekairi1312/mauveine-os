@@ -1,0 +1,33 @@
+#!/bin/bash
+# nekozame-editor [doom|neovim|helix|micro|nano|COMMAND]: your editor ($EDITOR).
+# doom emacs is the default. picking another one stops the emacs daemon for your
+# user and offers to remove doom (your ~/.config/doom stays). neovim, helix and
+# micro come from homebrew. no argument: asks.
+set -euo pipefail
+CONF="$HOME/.config/nekozame/editor"
+pick="${1:-}"
+if [ -z "$pick" ]; then
+    pick=$(gum choose --header "Your editor (\$EDITOR):" doom neovim helix micro nano "something else")
+    [ "$pick" = "something else" ] && pick=$(gum input --placeholder "the command, e.g. kak")
+fi
+[ -n "$pick" ] || exit 1
+
+brew_get() { # brew_get FORMULA: from homebrew, if it isn't there yet
+    local b=/home/linuxbrew/.linuxbrew/bin/brew
+    [ -x "$b" ] || { echo "homebrew isn't set up yet (it is after the first login)" >&2; exit 1; }
+    "$b" list "$1" >/dev/null 2>&1 || "$b" install "$1"
+}
+case "$pick" in
+    doom) exec nekozame-doom ;;
+    neovim) brew_get neovim; cmd=nvim ;;
+    helix) brew_get helix; cmd=hx ;;
+    micro) brew_get micro; cmd=micro ;;
+    *) cmd="$pick"; command -v "${cmd%% *}" >/dev/null || echo "($cmd isn't installed yet)" ;;
+esac
+
+mkdir -p "$(dirname "$CONF")"; echo "$cmd" > "$CONF"
+systemctl --user mask --now emacs.service 2>/dev/null || true
+if [ -d "$HOME/.config/emacs" ] && gum confirm "Remove Doom Emacs (~/.config/emacs)? Your ~/.config/doom stays."; then
+    rm -rf "$HOME/.config/emacs"
+fi
+echo "\$EDITOR is $cmd (from your next login)"

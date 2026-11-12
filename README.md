@@ -6,12 +6,14 @@ Opinionated immutable distro.
 
 - [niri](https://github.com/niri-wm/niri) with [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) is the whole desktop, login screen included, with no KDE (the Steam Deck image keeps KDE for Desktop Mode)
 - Gaming and emulation tools (and NVIDIA drivers on the NVIDIA image)
-- Doom Emacs as `$EDITOR`, always running as a daemon (`ujust nekozame-doom` installs it), Ghostty and fuzzel, plus dev tools
-- Audio: low-latency PipeWire, realtime priority, Wine + yabridge for Windows plugins, qpwgraph and Carla. `ujust nekozame-audio` sets up your pick of Bitwig, Reaper or Renoise (proprietary, paid), Ardour or LMMS (open source, free), plus open source plugins
-- Sunshine always on, so you can stream it from anywhere over Tailscale with Moonlight (`ujust nekozame-sunshine`)
-- Zen with Dark Reader preinstalled (import the nekozame look from `/usr/share/nekozame-os/darkreader/nekozame.json`), and Helium as an optional browser (`ujust nekozame-helium`)
+- Doom Emacs as `$EDITOR`, always running as a daemon, emacs keys (evil mode or another editor if you want)
+- Low-latency audio with realtime priority for everyone, and music production on request: Bitwig, Reaper or Renoise (proprietary, paid), Ardour or LMMS (free software), plugins, and yabridge for Windows plugins
+- Sunshine always on, so you can stream it from anywhere over Tailscale with Moonlight
+- Zen, ready for privacy: Dark Reader, uBlock Origin, Privacy Badger, LibRedirect, ClearURLs and Consent-O-Matic, DuckDuckGo, HTTPS-only, no telemetry, no WebRTC leaks (Helium optional, with the same)
 - Windows VMs with quickemu (`quickget windows 11`) on top of libvirt and virt-manager
-- A little catshark swimming as your boot screen and wallpaper (`ujust nekozame-wallpaper`), sharp on any screen shape <3
+- A little catshark swimming as your boot screen and wallpaper, sharp on any screen shape <3
+
+On your first login, a short setup turns all of it on and asks about the optional bits. Run it again with `ujust nekozame-setup`; everything else is under `ujust`.
 
 [All the software](PACKAGES.md)
 

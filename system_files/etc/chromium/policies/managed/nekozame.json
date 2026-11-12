@@ -1,0 +1,29 @@
+{
+  "ExtensionSettings": {
+    "eimadpbcbfnmbkopoojfekhnkhdbieeh": {
+      "installation_mode": "normal_installed",
+      "update_url": "https://clients2.google.com/service/update2/crx"
+    },
+    "pkehgijcmpdhfbdbbnkijodmdjhbjlgp": {
+      "installation_mode": "normal_installed",
+      "update_url": "https://clients2.google.com/service/update2/crx"
+    },
+    "lckanjgmijmafbedllaakclkaicjfmnk": {
+      "installation_mode": "normal_installed",
+      "update_url": "https://clients2.google.com/service/update2/crx"
+    },
+    "mdjildafknihdffpkfmmpnpoiajfjnjd": {
+      "installation_mode": "normal_installed",
+      "update_url": "https://clients2.google.com/service/update2/crx"
+    }
+  },
+  "WebRtcIPHandling": "default_public_interface_only",
+  "MetricsReportingEnabled": false,
+  "HttpsOnlyMode": "force_enabled",
+  "BlockThirdPartyCookies": true,
+  "DnsOverHttpsMode": "off",
+  "DefaultSearchProviderEnabled": true,
+  "DefaultSearchProviderName": "DuckDuckGo",
+  "DefaultSearchProviderSearchURL": "https://duckduckgo.com/?q={searchTerms}",
+  "DefaultSearchProviderSuggestURL": "https://duckduckgo.com/ac/?q={searchTerms}&type=list"
+}
