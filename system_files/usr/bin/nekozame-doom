@@ -1,0 +1,12 @@
+#!/bin/bash
+# installs doom emacs into ~/.config/emacs and syncs it.
+# your own doom config (~/.config/doom) is kept; bring it from your dotfiles.
+set -euo pipefail
+DOOM="$HOME/.config/emacs"
+if [ ! -d "$DOOM/.git" ]; then
+    [ -e "$DOOM" ] && mv "$DOOM" "$DOOM.bak.$(date +%s)"
+    git clone --depth 1 https://github.com/doomemacs/doomemacs "$DOOM"
+    "$DOOM/bin/doom" install --force
+else
+    "$DOOM/bin/doom" sync
+fi

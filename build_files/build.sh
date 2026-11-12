@@ -34,6 +34,30 @@ dnf5 -y install mpv-libs
 cp -avf /ctx/mpvpaper/. /
 command -v mpvpaper
 
+### music: low latency (pipewire config + threadirqs in system_files), realtime
+### priority, a patchbay and plugin host, plugins, wine + yabridge for windows plugins
+dnf5 -y install realtime-setup qpwgraph Carla calf lsp-plugins-lv2 wine
+YABRIDGE=5.1.1
+curl -fsSL "https://github.com/robbert-vdh/yabridge/releases/download/${YABRIDGE}/yabridge-${YABRIDGE}.tar.gz" \
+    | tar -xz -C /tmp
+mkdir -p /usr/lib/yabridge
+cp -a /tmp/yabridge/. /usr/lib/yabridge/
+ln -sf /usr/lib/yabridge/yabridgectl /usr/bin/yabridgectl
+rm -rf /tmp/yabridge
+
+### windows vms: quickemu on top of dx's libvirt/qemu/swtpm/ovmf
+### ("quickget windows 11" downloads windows and sets up the vm)
+dnf5 -y install quickemu
+
+### doom emacs: its dependencies (nekozame-doom installs doom itself per user),
+### and the emacs daemon always running for every user (EDITOR is its client)
+dnf5 -y install ripgrep fd-find git
+if [ -f /usr/lib/systemd/user/emacs.service ]; then
+    systemctl --global enable emacs.service
+else
+    echo "warning: no emacs.service in this emacs build" >&2
+fi
+
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
 dnf5 -y install plymouth-plugin-script  # the theme is a plymouth script

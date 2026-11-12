@@ -1,0 +1,2 @@
+# threaded irqs: lets realtime audio threads win over interrupt handlers
+kargs = ["threadirqs"]
