@@ -38,12 +38,12 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 - Bitwig, Reaper, Renoise, Ardour or LMMS (DAWs)
 - Carla (plugin host)
 - Calf, LSP, Surge XT, Dexed, Cardinal, Helm, Geonkick, x42, Zam, Dragonfly Reverb (plugins)
-- yabridge (Windows plugins)
+- yabridge (Microsoft Windows plugins)
 
-## Windows
+## Microsoft Windows
 
-- Wine (Windows apps)
-- quickemu (Windows VMs)
+- Wine (Microsoft Windows apps)
+- quickemu (Microsoft Windows VMs)
 
 ## VMs
 
