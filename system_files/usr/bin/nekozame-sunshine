@@ -3,7 +3,8 @@
 #   native sunshine (in the image, with the kms capture right), so it captures the
 #   screen under niri, kde or anything, and runs from boot (linger), even when
 #   nobody's at the machine. your flatpak/brew sunshine settings and paired devices
-#   carry over. optionally logs you in to niri at boot, so there's always a desktop.
+#   carry over, then the flatpak and brew versions are removed. optionally logs you
+#   in to niri at boot, so there's always a desktop.
 set -euo pipefail
 
 CONF="$HOME/.config/sunshine"
@@ -38,6 +39,17 @@ setkey() {  # setkey KEY VALUE
 }
 setkey capture kms                 # works under any compositor
 setkey origin_web_ui_allowed wan   # tailscale addresses (100.x) count as wan
+
+# native only from here on: remove the flatpak and brew ones (settings were copied above)
+flatpak uninstall -y --noninteractive dev.lizardbyte.app.Sunshine 2>/dev/null || true
+if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    for f in sunshine sunshine-beta; do
+        /home/linuxbrew/.linuxbrew/bin/brew list "$f" >/dev/null 2>&1 || continue
+        /home/linuxbrew/.linuxbrew/bin/brew services stop "$f" 2>/dev/null || true
+        /home/linuxbrew/.linuxbrew/bin/brew unpin "$f" 2>/dev/null || true
+        /home/linuxbrew/.linuxbrew/bin/brew uninstall "$f" || true
+    done
+fi
 
 # run from boot, not only while logged in
 sudo loginctl enable-linger "$USER"
