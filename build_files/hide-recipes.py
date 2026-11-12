@@ -46,3 +46,33 @@ for path in sorted(glob.glob(f"{root}/*.just")):
 for name in sorted(set(HIDE) - found):
     print(f"warning: no ujust recipe named {name} to hide", file=sys.stderr)
 print(f"hid {len(found)} ujust recipes")
+
+# nekozame's wrappers call bazzite recipes; an image without one of them (the deck
+# has no virtualization, for one) must drop that wrapper, or just refuses to load
+# the whole justfile
+HEADER = re.compile(r"^@?([A-Za-z0-9_-]+)\b[^:]*:(?!=)")
+have = set()
+for path in glob.glob(f"{root}/*.just"):
+    if path.endswith("60-custom.just"):
+        continue
+    for line in open(path, encoding="utf-8"):
+        m = HEADER.match(line)
+        if m:
+            have.add(m.group(1))
+custom = f"{root}/60-custom.just"
+blocks = open(custom, encoding="utf-8").read().split("\n\n")
+kept = []
+for block in blocks:
+    deps = []
+    for line in block.split("\n"):
+        m = re.match(r"^[A-Za-z0-9_-]+\b[^:]*:\s*(.*)$", line)
+        if m and not line.startswith("#"):
+            deps = re.findall(r"\(?([A-Za-z0-9_-]+)", m.group(1).split("#")[0])
+            deps = [d for d in deps if d.isidentifier() or "-" in d]
+            break
+    missing = [d for d in deps if d not in have and d.upper() != d]
+    if missing:
+        print(f"dropped a wrapper: needs {', '.join(missing)}, not on this image")
+        continue
+    kept.append(block)
+open(custom, "w", encoding="utf-8").write("\n\n".join(kept))
