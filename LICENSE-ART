@@ -5,7 +5,7 @@ The artwork in this repository (the nekozame os logo and banner, the catshark,
 the boot animation and its frames, and the wallpapers), including:
 
   docs/logo.gif
-  system_files/usr/share/nekozame-os/logo.png
+  system_files/usr/share/nekozame-os/fastfetch/
   system_files/usr/share/pixmaps/nekozame-os.png
   system_files/usr/share/plymouth/themes/nekozame/
   system_files/usr/share/backgrounds/nekozame/
