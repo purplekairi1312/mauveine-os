@@ -1,7 +1,20 @@
+# mpvpaper (the animated wallpaper player) isn't in Fedora. Compile it in plain
+# Fedora, matching nekozame os's Fedora release, so no build tools touch the image
+# (Bazzite ships its own graphics drivers, which Fedora's -devel packages clash with).
+FROM registry.fedoraproject.org/fedora:45 AS mpvpaper
+ARG MPVPAPER=1.9
+RUN dnf -y install gcc meson ninja-build pkgconf-pkg-config mpv-devel wayland-devel \
+        wayland-protocols-devel mesa-libEGL-devel tar gzip && \
+    curl -fsSL "https://github.com/GhostNaN/mpvpaper/archive/refs/tags/${MPVPAPER}.tar.gz" \
+        | tar -xz -C /tmp && \
+    meson setup /tmp/build "/tmp/mpvpaper-${MPVPAPER}" --prefix=/usr --buildtype=release && \
+    DESTDIR=/out ninja -C /tmp/build install
+
 # Allow build scripts to be referenced without being copied into the final image
 FROM scratch AS ctx
 COPY build_files /
 COPY system_files /system_files
+COPY --from=mpvpaper /out /mpvpaper
 
 # Base Image
 # Your current Bazzite: the developer edition with NVIDIA drivers.

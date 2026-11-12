@@ -2,12 +2,14 @@ nekozame os artwork
 Copyright (c) 2026 purplekairi1312
 
 The artwork in this repository (the nekozame os logo and banner, the catshark,
-the boot animation and its frames, and the nekozame palette), including:
+the boot animation and its frames, and the wallpapers), including:
 
   docs/logo.gif
   system_files/usr/share/nekozame-os/logo.png
   system_files/usr/share/pixmaps/nekozame-os.png
   system_files/usr/share/plymouth/themes/nekozame/
+  system_files/usr/share/backgrounds/nekozame/
+  system_files/usr/share/wallpapers/nekozame-*/
 
 is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
 International License (CC BY-NC-SA 4.0).
@@ -24,4 +26,4 @@ build upon) this artwork, under these terms:
 Full license text: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 
 The code and build files in this repository are licensed separately under the
-Apache License 2.0 (see LICENSE).
+GNU General Public License v3.0 or later (see LICENSE).
