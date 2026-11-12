@@ -2,14 +2,14 @@
 # nekozame-audio [bitwig] [reaper] [ardour] [lmms] [renoise FILE.tar.gz]
 # one-time audio setup for your user:
 #   realtime priority for audio apps (realtime + audio groups, needs sudo)
-#   the daws you pick, from flathub, with free plugins built for each one's runtime
+#   the daws you pick, from flathub, with open source plugins built for each one's runtime
 #   yabridge pointed at its system copy, so windows plugins can be bridged
 # daws:
-#   bitwig  bitwig studio   paid
-#   reaper  reaper          paid (free evaluation)
-#   ardour  ardour          free
-#   lmms    lmms            free
-#   renoise renoise         paid (free demo): not on flathub, so download the linux
+#   bitwig  bitwig studio   proprietary, paid
+#   reaper  reaper          proprietary, paid (free evaluation)
+#   ardour  ardour          open source (gpl), free
+#   lmms    lmms            open source (gpl), free
+#   renoise renoise         proprietary, paid (free demo): not on flathub, so download the linux
 #                           tarball (demo or your full version) from renoise.com and
 #                           pass it; it's installed natively into ~/.local
 # no arguments: asks which ones.
@@ -27,7 +27,8 @@ done
 [ -z "$RENOISE_TAR" ] || [ -f "$RENOISE_TAR" ] || { echo "no such file: $RENOISE_TAR" >&2; exit 1; }
 if [ ${#daws[@]} -eq 0 ] && [ -z "$RENOISE_TAR" ]; then
     echo "which daws? (space separated)"
-    echo "  bitwig (paid)  reaper (paid, free evaluation)  ardour (free)  lmms (free)"
+    echo "  proprietary, paid:  bitwig  reaper (free evaluation)"
+    echo "  open source, free:  ardour  lmms"
     echo "  (renoise: nekozame-audio renoise ~/Downloads/Renoise_*_Linux_x86_64.tar.gz)"
     read -r -p "> " -a daws
 fi
