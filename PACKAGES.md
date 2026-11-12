@@ -17,6 +17,12 @@
 
 On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 
+## Look
+
+- nekozame theme (DMS, Ghostty, Emacs, KDE, Konsole, btop, Dark Reader)
+- animated catshark boot screen
+- animated catshark wallpaper
+
 ## Browser
 
 - Dark Reader (dark mode on every site)
@@ -40,6 +46,11 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 - Calf, LSP, Surge XT, Dexed, Cardinal, Helm, Geonkick, x42, Zam, Dragonfly Reverb (plugins)
 - yabridge (Microsoft Windows plugins)
 
+## Streaming
+
+- Tailscale (private network between your machines)
+- Sunshine (game streaming, always on over Tailscale)
+
 ## Microsoft Windows
 
 - Wine (Microsoft Windows apps)
@@ -48,17 +59,6 @@ On the Steam Deck image, Desktop Mode is KDE Plasma and niri is optional.
 ## VMs
 
 - virt-manager (any VM)
-
-## Streaming
-
-- Tailscale (private network between your machines)
-- Sunshine (game streaming, always on over Tailscale)
-
-## Look
-
-- nekozame theme (DMS, Ghostty, Emacs, KDE, Konsole, btop, Dark Reader)
-- animated catshark boot screen
-- animated catshark wallpaper
 
 ## System
 
