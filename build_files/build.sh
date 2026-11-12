@@ -17,6 +17,17 @@ dnf5 -y install niri dms
 dnf5 -y copr enable scottames/ghostty
 dnf5 -y install emacs fuzzel ghostty
 
+### the nekozame theme, from its own repo (github.com/purplekairi1312/nekozame-theme)
+curl -fsSL https://github.com/purplekairi1312/nekozame-theme/archive/refs/heads/main.tar.gz \
+    | tar -xz -C /tmp
+T=/tmp/nekozame-theme-main/themes
+install -Dm0644 "$T/kde/nekozame.colors" /usr/share/color-schemes/nekozame.colors
+install -Dm0644 "$T/konsole/nekozame.colorscheme" /usr/share/konsole/nekozame.colorscheme
+install -Dm0644 "$T/ghostty/nekozame" /usr/share/ghostty/themes/nekozame
+install -Dm0644 "$T/btop/nekozame.theme" /usr/share/btop/themes/nekozame.theme
+install -Dm0644 "$T/palettes/nekozame.gpl" /usr/share/nekozame-os/nekozame.gpl
+rm -rf /tmp/nekozame-theme-main
+
 ### Branding: the name and logo people see. ID, VARIANT_ID and image-info.json
 ### stay Bazzite's, because ujust and the update tools read them.
 sed -i -e 's/^PRETTY_NAME=.*/PRETTY_NAME="nekozame os"/' \
