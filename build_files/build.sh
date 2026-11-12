@@ -83,6 +83,13 @@ else
     echo "warning: no emacs.service in this emacs build" >&2
 fi
 
+### sunshine, always on over tailscale: native, so kms capture works under niri (the
+### flatpak can't get the capture right); ujust nekozame-sunshine turns it on
+dnf5 -y copr enable lizardbyte/stable
+dnf5 -y install Sunshine
+dnf5 -y copr disable lizardbyte/stable
+setcap cap_sys_admin+p "$(readlink -f /usr/bin/sunshine)"
+
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
 dnf5 -y install plymouth-plugin-script  # the theme is a plymouth script

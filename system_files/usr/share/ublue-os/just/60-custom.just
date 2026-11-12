@@ -14,3 +14,8 @@ nekozame-doom:
 [group('nekozame')]
 nekozame-wallpaper VARIANT="small":
     /usr/bin/nekozame-wallpaper {{ VARIANT }}
+
+# Sunshine always on, over Tailscale: native, KMS capture, runs from boot
+[group('nekozame')]
+nekozame-sunshine:
+    /usr/bin/nekozame-sunshine

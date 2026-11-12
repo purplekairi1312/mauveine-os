@@ -51,5 +51,6 @@ if [[ "${a,,}" == y* ]]; then
 fi
 
 ip=$(tailscale ip -4 2>/dev/null | head -1 || true)
-echo "sunshine is on. moonlight: ${ip:-this machine's tailscale ip}"
-echo "web ui: https://${ip:-localhost}:47990"
+[ -n "$ip" ] || ip="<tailscale ip>"
+echo "sunshine is on. moonlight: $ip"
+echo "web ui: https://$ip:47990"
