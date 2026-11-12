@@ -46,8 +46,16 @@ ln -sf /usr/lib/yabridge/yabridgectl /usr/bin/yabridgectl
 rm -rf /tmp/yabridge
 
 ### windows vms: quickemu on top of dx's libvirt/qemu/swtpm/ovmf
-### ("quickget windows 11" downloads windows and sets up the vm)
-dnf5 -y install quickemu
+### ("quickget windows 11" downloads windows and sets up the vm). fedora's package
+### wants mesa-demos, which bazzite's own mesa blocks; quickemu is just scripts,
+### so take them from the release and install what they use
+dnf5 -y install qemu edk2-tools genisoimage jq pciutils socat spice-gtk-tools swtpm \
+    unzip usbutils xdg-user-dirs xrandr
+QUICKEMU=4.9.9
+curl -fsSL "https://github.com/quickemu-project/quickemu/archive/refs/tags/${QUICKEMU}.tar.gz" \
+    | tar -xz -C /tmp
+install -m 0755 "/tmp/quickemu-${QUICKEMU}"/{quickemu,quickget,quickreport,chunkcheck} /usr/bin/
+rm -rf "/tmp/quickemu-${QUICKEMU}"
 
 ### doom emacs: its dependencies (nekozame-doom installs doom itself per user),
 ### and the emacs daemon always running for every user (EDITOR is its client)
