@@ -1,23 +1,53 @@
 #!/bin/bash
-# one-time music setup for your user:
+# nekozame-audio [bitwig] [reaper] [ardour] [lmms]
+# one-time audio setup for your user:
 #   realtime priority for audio apps (realtime + audio groups, needs sudo)
-#   bitwig studio from flathub, plus free plugins built for its runtime
+#   the daws you pick, from flathub, with free plugins built for each one's runtime
 #   yabridge pointed at its system copy, so windows plugins can be bridged
+# daws:
+#   bitwig  bitwig studio   paid
+#   reaper  reaper          paid (free evaluation)
+#   ardour  ardour          free
+#   lmms    lmms            free
+# no arguments: asks which ones.
 set -euo pipefail
+
+declare -A APP=([bitwig]=com.bitwig.BitwigStudio [reaper]=fm.reaper.Reaper
+                [ardour]=org.ardour.Ardour [lmms]=io.lmms.LMMS)
+PLUGINS="Dexed Cardinal Helm Geonkick Calf x42Plugins ZamPlugins DragonflyReverb Surge-XT"
+
+daws=("$@")
+if [ ${#daws[@]} -eq 0 ]; then
+    echo "which daws? (space separated)"
+    echo "  bitwig (paid)  reaper (paid, free evaluation)  ardour (free)  lmms (free)"
+    read -r -p "> " -a daws
+fi
+for d in "${daws[@]}"; do
+    [ -n "${APP[$d]:-}" ] || { echo "unknown daw: $d" >&2; exit 1; }
+done
+
 sudo usermod -aG realtime,audio "$USER"
 
-RUNTIME=25.08   # bitwig's flatpak runtime; its plugins must match it
-flatpak install -y --user flathub com.bitwig.BitwigStudio
-for p in Dexed Cardinal Helm Geonkick Calf x42Plugins ZamPlugins DragonflyReverb; do
-    flatpak install -y --user flathub "org.freedesktop.LinuxAudio.Plugins.$p//$RUNTIME" || true
+branches=()
+for d in "${daws[@]}"; do
+    flatpak install -y --user flathub "${APP[$d]}"
+    # plugins are flatpak extensions and must match the daw's runtime branch
+    rt=$(flatpak info --user --show-runtime "${APP[$d]}")   # e.g. org.freedesktop.Platform/x86_64/25.08
+    b=${rt##*/}; branches+=("${b##*-}")                    # kde's 5.15-25.08 -> 25.08
+done
+for b in $(printf '%s\n' "${branches[@]}" | sort -u); do
+    for p in $PLUGINS; do
+        flatpak install -y --user flathub "org.freedesktop.LinuxAudio.Plugins.$p//$b" 2>/dev/null \
+            || echo "($p isn't built for $b yet, skipped)"
+    done
 done
 
 yabridgectl set --path=/usr/lib/yabridge
 # where windows plugin installers put things inside wine
 C="${WINEPREFIX:-$HOME/.wine}/drive_c/Program Files"
 mkdir -p "$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins"
-for d in "$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins"; do
-    yabridgectl add "$d" 2>/dev/null || true
+for dir in "$C/Common Files/VST3" "$C/Common Files/CLAP" "$C/VstPlugins"; do
+    yabridgectl add "$dir" 2>/dev/null || true
 done
 echo "done. log out and back in for realtime priority."
 echo "windows plugins: install them with wine, then run: yabridgectl sync"
