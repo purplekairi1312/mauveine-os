@@ -1,9 +1,14 @@
-# Mauveine OS
+# Nekozame OS
+
+<p align="center"><img src="system_files/usr/share/nekozame-os/logo.png" alt="purplekairi1312 logo" width="420"></p>
 
 A pastel [Bazzite](https://bazzite.gg) by purplekairi1312: Bazzite DX with
 NVIDIA drivers, plus the [niri](https://github.com/niri-wm/niri) scrolling
 window manager, [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell)
 and the **Mauveine** theme.
+
+*Nekozame* (猫鮫) is Japanese for catshark: a small, gentle shark with
+cat-like eyes. Cat plus shark, so a catgirl shark.
 
 Built daily on top of `ghcr.io/ublue-os/bazzite-dx-nvidia:stable`, so it gets
 every Bazzite update.
@@ -14,6 +19,7 @@ every Bazzite update.
 |---|---|
 | Desktop | niri and DankMaterialShell, next to Bazzite's KDE Plasma. Choose either on the login screen. |
 | Apps | Emacs, Ghostty, fuzzel |
+| Look | The Nekozame OS name and logo (fastfetch, About this System, boot menu) |
 | Theme | Mauveine color scheme for KDE, a Ghostty theme, a wallpaper and a `.gpl` swatch palette for Krita, GIMP and Aseprite |
 
 ## Mauveine
@@ -43,11 +49,11 @@ Your files, Flatpaks and settings stay as they are; nothing is reinstalled.
 sudo rpm-ostree reset
 
 # 2. switch to the image (first time only, unsigned), then reboot
-sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/purplekairi1312/mauveine-os:latest
+sudo rpm-ostree rebase ostree-unverified-registry:ghcr.io/purplekairi1312/nekozame-os:latest
 systemctl reboot
 
 # 3. switch to the signed image, so later updates are verified, then reboot
-sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/purplekairi1312/mauveine-os:latest
+sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/purplekairi1312/nekozame-os:latest
 systemctl reboot
 ```
 
@@ -68,7 +74,7 @@ The image is built by GitHub Actions from [`Containerfile`](Containerfile) and
 Verify it with [`cosign.pub`](cosign.pub):
 
 ```sh
-cosign verify --key cosign.pub ghcr.io/purplekairi1312/mauveine-os
+cosign verify --key cosign.pub ghcr.io/purplekairi1312/nekozame-os
 ```
 
 Based on the Universal Blue [image template](https://github.com/ublue-os/image-template).
