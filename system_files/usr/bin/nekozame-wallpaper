@@ -1,0 +1,44 @@
+#!/bin/bash
+# nekozame-wallpaper [big|small|none|stop]
+# Plays the nekozame os underwater loop as the desktop wallpaper on every screen
+# (Wayland, via mpvpaper). Each screen gets the loop rendered for the shape closest
+# to its own (32:9 ... 9:16), drawn at its tiny native size and scaled up with hard
+# pixels, so it is sharp at any resolution. It pauses when hidden.
+#   big    the logo across the screen
+#   small  the logo smaller, more water (default)
+#   none   just the catshark
+# Set NEKOZAME_WALLPAPER to change the default.
+# Artwork (c) 2026 purplekairi1312, CC BY-NC-SA 4.0.
+set -euo pipefail
+
+DIR=/usr/share/backgrounds/nekozame
+VARIANT="${1:-${NEKOZAME_WALLPAPER:-small}}"
+pkill -x mpvpaper 2>/dev/null || true
+[ "$VARIANT" = stop ] && exit 0
+
+# the loop for the shape closest to WxH
+pick() {
+    local w=$1 h=$2 best="" bestd=""
+    for f in "$DIR/$VARIANT"-*.mkv; do
+        local a=${f##*-}; a=${a%.mkv}           # e.g. 21x9, 9x19.5
+        local d
+        d=$(awk -v w="$w" -v h="$h" -v a="$a" 'BEGIN {
+            split(a, p, "x"); r = p[1] / p[2]; s = w / h
+            d = r / s; if (d < 1) d = 1 / d; print d }')
+        if [ -z "$bestd" ] || awk -v d="$d" -v b="$bestd" 'BEGIN { exit !(d < b) }'; then
+            best=$f; bestd=$d
+        fi
+    done
+    echo "$best"
+}
+
+OPTS="no-audio loop scale=nearest panscan=1.0 hwdec=auto"
+if command -v niri >/dev/null && niri msg --json outputs >/dev/null 2>&1; then
+    niri msg --json outputs | jq -r '.[] | select(.current_mode != null)
+        | "\(.name) \(.modes[.current_mode].width) \(.modes[.current_mode].height)"' |
+    while read -r name w h; do
+        mpvpaper -f -p -o "$OPTS" "$name" "$(pick "$w" "$h")"
+    done
+else
+    mpvpaper -f -p -o "$OPTS" '*' "$(pick 16 9)"
+fi

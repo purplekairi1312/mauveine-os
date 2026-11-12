@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=nekozame
+Description=nekozame os: the catshark swimming under the water, a Saturn-style loop
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/nekozame
+ScriptFile=/usr/share/plymouth/themes/nekozame/nekozame.script

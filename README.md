@@ -1,6 +1,6 @@
 # nekozame os
 
-<p align="center"><img src="system_files/usr/share/nekozame-os/logo.png" alt="purplekairi1312 logo" width="420"></p>
+<p align="center"><img src="docs/logo.gif" alt="nekozame os logo: a pixelated catshark swimming above the chrome letters nekozame os and 猫鮫 in a bubble, underwater" width="640"></p>
 
 nekozame os is purplekairi1312's pastel, kawaii desktop OS: the
 [niri](https://github.com/niri-wm/niri) scrolling window manager with
@@ -17,7 +17,8 @@ cat-like eyes. Cat plus shark, so a catgirl shark.
 | Desktop | niri with DankMaterialShell, or KDE Plasma. Choose either on the login screen. |
 | Gaming | Steam, Proton, NVIDIA drivers and gaming tweaks |
 | Development | Emacs, Ghostty, VS Code, containers (Podman, Docker, Distrobox) |
-| Look | The nekozame name and logo in fastfetch, About this System and the boot menu |
+| Look | The nekozame logo in fastfetch and About this System, and an animated boot screen: a catshark swimming under the water, rendered in Blender in a Saturn-era style |
+| Wallpaper | The same underwater loop as an animated wallpaper (`nekozame-wallpaper [big\|small\|none]`, sharp at any resolution and screen shape), plus still versions in KDE's wallpaper picker |
 | Theme | nekozame for KDE and Ghostty, and a `.gpl` swatch palette for Krita, GIMP and Aseprite |
 | Updates | Atomic and signed: built every day, installed in the background, and the previous version stays in the boot menu |
 
@@ -82,3 +83,13 @@ nekozame os is a fork of [Bazzite](https://bazzite.gg) (`bazzite-dx-nvidia`),
 made with the Universal Blue
 [image template](https://github.com/ublue-os/image-template). Its gaming,
 driver and update foundations come from their work.
+
+## License
+
+The code and build files are under the [Apache License 2.0](LICENSE).
+
+The nekozame os artwork (the logo, the catshark, the boot animation and the
+nekozame palette) is by **purplekairi1312** and is licensed under
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/):
+you may share and adapt it for non-commercial purposes, with credit, under the
+same license. See [`LICENSE-ART`](LICENSE-ART).

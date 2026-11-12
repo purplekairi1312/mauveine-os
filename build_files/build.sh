@@ -28,6 +28,39 @@ grep -q nekozame-os/logo.png /usr/share/ublue-os/bazzite/fastfetch.jsonc
 # Terminal welcome: same layout and ujust table, nekozame os title.
 sed -i '1s/.*/# Welcome to nekozame os 🦈/' /usr/share/ublue-os/motd/template.md
 
+### Animated wallpaper: mpvpaper isn't in Fedora, so build the pinned release from
+### source (nekozame-wallpaper in system_files runs it), then drop the build tools.
+MPVPAPER=1.9
+dnf5 -y install mpv-libs
+# only remove afterwards what this step added (the DX base already ships some of these)
+BUILD_DEPS=""
+for p in gcc meson ninja-build pkgconf-pkg-config mpv-devel wayland-devel \
+         wayland-protocols-devel mesa-libEGL-devel; do
+    rpm -q "$p" >/dev/null 2>&1 || BUILD_DEPS="$BUILD_DEPS $p"
+done
+if [ -n "$BUILD_DEPS" ]; then
+    # shellcheck disable=SC2086
+    dnf5 -y install --setopt=install_weak_deps=False $BUILD_DEPS
+fi
+curl -fsSL "https://github.com/GhostNaN/mpvpaper/archive/refs/tags/${MPVPAPER}.tar.gz" \
+    | tar -xz -C /tmp
+meson setup /tmp/mpvpaper-build "/tmp/mpvpaper-${MPVPAPER}" --prefix=/usr --buildtype=release
+ninja -C /tmp/mpvpaper-build install
+rm -rf /tmp/mpvpaper-build "/tmp/mpvpaper-${MPVPAPER}"
+if [ -n "$BUILD_DEPS" ]; then
+    # shellcheck disable=SC2086
+    dnf5 -y remove $BUILD_DEPS
+fi
+command -v mpvpaper
+
+### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
+### baked into the initramfs so it shows from the very start of boot.
+plymouth-set-default-theme nekozame
+KVER="$(ls /usr/lib/modules | head -n1)"
+dracut --no-hostonly --kver "$KVER" --reproducible --zstd -v --add ostree \
+    -f "/usr/lib/modules/$KVER/initramfs.img"
+chmod 0600 "/usr/lib/modules/$KVER/initramfs.img"
+
 ### Only accept updates signed with this repo's key (cosign.pub)
 jq '.transports.docker["ghcr.io/purplekairi1312/nekozame-os"] = [{
       "type": "sigstoreSigned",

@@ -1,0 +1,82 @@
+# nekozame os boot screen: a 48-frame underwater loop rendered in Blender
+# (the nekozame-logo project, v13-anim.py), played at 16 fps. There is one set of
+# frames per screen shape (21:9, 16:9, 16:10, 4:3); the closest one is picked and
+# each frame is scaled to cover the screen as it is shown, so only small frames sit
+# in memory. Also shows the disk password prompt and boot messages.
+# Artwork (c) 2026 purplekairi1312, CC BY-NC-SA 4.0 (see LICENSE-ART).
+
+NFRAMES = 48;
+W = Window.GetWidth();
+H = Window.GetHeight();
+Window.SetBackgroundTopColor(0.35, 0.31, 0.43);
+Window.SetBackgroundBottomColor(0.35, 0.31, 0.43);
+
+# pick the frame set whose shape is closest to the screen's
+screen = W / H;
+names[0] = "21x9";  ratios[0] = 688 / 288;
+names[1] = "16x9";  ratios[1] = 16 / 9;
+names[2] = "16x10"; ratios[2] = 16 / 10;
+names[3] = "4x3";   ratios[3] = 4 / 3;
+best = 0;
+for (i = 1; i < 4; i++)
+    if (Math.Abs(ratios[i] - screen) < Math.Abs(ratios[best] - screen))
+        best = i;
+dir = "frames-" + names[best] + "/";
+
+for (i = 0; i < NFRAMES; i++)
+    frames[i] = Image(dir + "frame-" + i + ".png");
+fw = frames[0].GetWidth();
+fh = frames[0].GetHeight();
+scale = Math.Max(W / fw, H / fh);  # cover the screen, keeping the shape
+sw = Math.Int(fw * scale + 0.5);
+sh = Math.Int(fh * scale + 0.5);
+
+loop = Sprite();
+loop.SetPosition(Math.Int((W - sw) / 2), Math.Int((H - sh) / 2), 0);
+shown = -1;
+tick = 0;
+fun refresh() {
+    # Plymouth calls this at 50 Hz: a new frame every 3 calls is ~16 fps
+    tick++;
+    f = Math.Int(tick / 3) % NFRAMES;
+    if (f != shown) {
+        loop.SetImage(frames[f].Scale(sw, sh));
+        shown = f;
+    }
+}
+Plymouth.SetRefreshFunction(refresh);
+
+# ---- messages and the password prompt -----------------------------------------
+fun text(s, size) {
+    return Image.Text(s, 1, 1, 1, 1, "Sans Bold " + size);
+}
+msg = Sprite();
+msg.SetZ(10);
+fun show_message(s) {
+    img = text(s, 14);
+    msg.SetImage(img);
+    msg.SetPosition(Math.Int((W - img.GetWidth()) / 2), Math.Int(H * 0.9), 10);
+}
+Plymouth.SetMessageFunction(show_message);
+
+prompt = Sprite();
+bullets = Sprite();
+prompt.SetZ(10);
+bullets.SetZ(10);
+fun display_password(p, n) {
+    pi = text(p, 16);
+    prompt.SetImage(pi);
+    prompt.SetPosition(Math.Int((W - pi.GetWidth()) / 2), Math.Int(H * 0.8), 10);
+    s = "";
+    for (i = 0; i < n; i++)
+        s += "● ";
+    bi = text(s, 16);
+    bullets.SetImage(bi);
+    bullets.SetPosition(Math.Int((W - bi.GetWidth()) / 2), Math.Int(H * 0.8) + 34, 10);
+}
+Plymouth.SetDisplayPasswordFunction(display_password);
+fun display_normal() {
+    prompt.SetImage(Image.Text("", 1, 1, 1));
+    bullets.SetImage(Image.Text("", 1, 1, 1));
+}
+Plymouth.SetDisplayNormalFunction(display_normal);
