@@ -1,0 +1,15 @@
+#!/bin/bash
+# on a first niri login: the nekozame theme in dankmaterialshell and the animated
+# wallpaper. runs once; --force runs it again.
+set -euo pipefail
+DONE="${XDG_STATE_HOME:-$HOME/.local/state}/nekozame/dms-defaults"
+[ "${1:-}" = --force ] || [ ! -e "$DONE" ] || exit 0
+
+for _ in $(seq 60); do  # wait for dms to come up
+    dms ipc call wallpaper get >/dev/null 2>&1 && break
+    sleep 1
+done
+dms ipc call settings set customThemeFile /usr/share/nekozame-os/dms/nekozame.json >/dev/null
+dms ipc call settings set currentThemeName custom >/dev/null
+nekozame-wallpaper
+mkdir -p "$(dirname "$DONE")" && touch "$DONE"

@@ -1,20 +1,26 @@
 #!/bin/bash
 # nekozame-wallpaper [big|small|none|stop]
-# Plays the nekozame os underwater loop as the desktop wallpaper on every screen
-# (Wayland, via mpvpaper). Each screen gets the loop rendered for the shape closest
-# to its own (32:9 ... 9:16), drawn at its tiny native size and scaled up with hard
-# pixels, so it is sharp at any resolution. It pauses when hidden.
+# the nekozame os underwater loop as the wallpaper on every screen. each screen gets
+# the loop rendered for the shape closest to its own (32:9 ... 9:16), scaled up by
+# a whole number with hard pixels and cropped to its exact resolution, so it's sharp
+# anywhere. dankmaterialshell plays it (and pauses it when hidden); without dms,
+# mpvpaper does. rendered once per screen size, kept in ~/.local/share/nekozame.
 #   big    the logo across the screen
 #   small  the logo smaller, more water (default)
 #   none   just the catshark
-# Set NEKOZAME_WALLPAPER to change the default.
-# Artwork (c) 2026 purplekairi1312, CC BY-NC-SA 4.0.
+# set NEKOZAME_WALLPAPER to change the default.
+# artwork (c) 2026 purplekairi1312, cc by-nc-sa 4.0.
 set -euo pipefail
 
 DIR=/usr/share/backgrounds/nekozame
+OUT="${XDG_DATA_HOME:-$HOME/.local/share}/nekozame/wallpapers"
 VARIANT="${1:-${NEKOZAME_WALLPAPER:-small}}"
-pkill -x mpvpaper 2>/dev/null || true
-[ "$VARIANT" = stop ] && exit 0
+
+if [ "$VARIANT" = stop ]; then
+    pkill -x mpvpaper 2>/dev/null || true
+    dms ipc call wallpaper clear >/dev/null 2>&1 || true
+    exit 0
+fi
 
 # the loop for the shape closest to WxH
 pick() {
@@ -32,13 +38,48 @@ pick() {
     echo "$best"
 }
 
-OPTS="no-audio loop scale=nearest panscan=1.0 hwdec=auto"
-if command -v niri >/dev/null && niri msg --json outputs >/dev/null 2>&1; then
-    niri msg --json outputs | jq -r '.[] | select(.current_mode != null)
-        | "\(.name) \(.modes[.current_mode].width) \(.modes[.current_mode].height)"' |
-    while read -r name w h; do
-        mpvpaper -f -p -o "$OPTS" "$name" "$(pick "$w" "$h")"
-    done
+# render it for exactly WxH: whole-number scale (even pixels), then crop
+render() {
+    local w=$1 h=$2 src f
+    src=$(pick "$w" "$h")
+    f="$OUT/$VARIANT-${w}x${h}.mp4"
+    if [ ! -s "$f" ]; then
+        mkdir -p "$OUT"
+        sw=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 "$src")
+        sh=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 "$src")
+        local k=$(( (w + sw - 1) / sw )); local kh=$(( (h + sh - 1) / sh ))
+        [ "$kh" -gt "$k" ] && k=$kh
+        ffmpeg -loglevel error -y -i "$src" \
+            -vf "scale=iw*$k:ih*$k:flags=neighbor,crop=$w:$h" \
+            -c:v libx264 -crf 14 -preset veryfast -pix_fmt yuv444p -an "$f"
+    fi
+    echo "$f"
+}
+
+outputs() {  # name width height, one screen per line
+    if command -v niri >/dev/null && niri msg --json outputs >/dev/null 2>&1; then
+        niri msg --json outputs | jq -r '.[] | select(.current_mode != null)
+            | "\(.name) \(.modes[.current_mode].width) \(.modes[.current_mode].height)"'
+    else
+        echo "* 1920 1080"
+    fi
+}
+
+mapfile -t screens < <(outputs)
+if dms ipc call wallpaper get >/dev/null 2>&1; then
+    if [ ${#screens[@]} -eq 1 ]; then
+        read -r _ w h <<< "${screens[0]}"
+        dms ipc call wallpaper set "$(render "$w" "$h")" >/dev/null
+    else
+        for s in "${screens[@]}"; do
+            read -r name w h <<< "$s"
+            dms ipc call wallpaper setFor "$name" "$(render "$w" "$h")" >/dev/null
+        done
+    fi
 else
-    mpvpaper -f -p -o "$OPTS" '*' "$(pick 16 9)"
+    pkill -x mpvpaper 2>/dev/null || true
+    for s in "${screens[@]}"; do
+        read -r name w h <<< "$s"
+        mpvpaper -f -p -o "no-audio loop" "$name" "$(render "$w" "$h")"
+    done
 fi

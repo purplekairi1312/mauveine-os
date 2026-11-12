@@ -7,7 +7,7 @@ ConditionPathExists=!%h/.config/niri/config.kdl
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/dms setup headless --compositor niri --no-systemd
+ExecStart=/usr/bin/nekozame-niri-config
 
 [Install]
 WantedBy=niri.service

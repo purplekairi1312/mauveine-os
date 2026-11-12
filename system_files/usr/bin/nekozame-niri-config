@@ -1,0 +1,10 @@
+#!/bin/bash
+# first niri login, before niri starts: dankmaterialshell's niri config instead of
+# niri's stock one (waybar, alacritty), plus the one-time nekozame dms defaults
+set -euo pipefail
+dms setup headless --compositor niri --no-systemd
+cat >> "${XDG_CONFIG_HOME:-$HOME/.config}/niri/config.kdl" <<'KDL'
+
+// nekozame os: theme + wallpaper in dms, once (nekozame-dms-defaults)
+spawn-at-startup "nekozame-dms-defaults"
+KDL
