@@ -12,7 +12,7 @@ Opinionated immutable distro.
 - Sunshine always on, so you can stream it from anywhere over Tailscale with Moonlight
 - Zen, ready for privacy: Dark Reader, uBlock Origin, Privacy Badger, LibRedirect, ClearURLs, Consent-O-Matic and nekojs (LibreJS made simple), DuckDuckGo, HTTPS-only, no telemetry, no WebRTC leaks (Helium optional, with the same)
 - Microsoft Windows VMs with quickemu (`quickget windows 11`) on top of libvirt and virt-manager
-- A little catshark swimming as your boot screen and wallpaper, sharp on any screen shape <3
+- A little catshark swimming as your boot screen and wallpaper, sharp on any screen shape, with the nekozame logo small, big or not at all (`ujust nekozame-wallpaper`) <3
 
 On your first login, a short setup turns all of it on and asks about the optional bits. Run it again with `ujust nekozame-setup`; everything else is under `ujust`.
 

@@ -30,7 +30,7 @@ nekozame-doom FLAG="":
 nekozame-autologin ACTION="status":
     /usr/bin/nekozame-autologin {{ ACTION }}
 
-# Animated catshark wallpaper: big, small (default), none or stop
+# Animated catshark wallpaper, with the nekozame logo small (default), big or none (just the catshark); stop turns it off
 [group('nekozame')]
 nekozame-wallpaper VARIANT="small":
     /usr/bin/nekozame-wallpaper {{ VARIANT }}
