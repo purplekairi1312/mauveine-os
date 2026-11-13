@@ -67,6 +67,10 @@
       "media.peerconnection.ice.no_host": {
         "Value": true,
         "Status": "default"
+      },
+      "layout.css.prefers-color-scheme.content-override": {
+        "Value": 1,
+        "Status": "default"
       }
     }
   }
