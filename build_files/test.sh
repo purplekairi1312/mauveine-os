@@ -27,6 +27,7 @@ check "emacs, ghostty, fuzzel, yazi" 'command -v emacs && command -v ghostty && 
 check "boot screen is the default" 'plymouth-set-default-theme | grep -qx nekozame'
 check "boot screen is in the initramfs" 'lsinitrd /usr/lib/modules/*/initramfs.img | grep -q themes/nekozame/frames-16x9'
 check "nekozame ujust recipes" 'just --justfile /usr/share/ublue-os/justfile --list | grep -q nekozame-sunshine'
+check "nekozame in apps (zen, discord, bitwig)" 'test -x /usr/bin/nekozame-apps-theme && test -s /usr/share/nekozame-os/zen/userContent.css && test -s /usr/share/nekozame-os/discord/nekozame.theme.css && test -s /usr/share/nekozame-os/bitwig/nekozame.bte && test -s /usr/share/nekozame-os/improvedtube/nekozame.json'
 check "theme files" 'test -s /usr/share/color-schemes/nekozame.colors && jq -e .primary /usr/share/nekozame-os/dms/nekozame.json'
 check "wallpapers" 'test -s /usr/share/backgrounds/nekozame/small-16x9.mkv'
 check "signed updates, every image" 'for i in nekozame-os nekozame-os-nvidia nekozame-os-deck; do jq -e ".transports.docker[\"ghcr.io/purplekairi1312/$i\"]" /etc/containers/policy.json || exit 1; done'

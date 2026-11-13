@@ -2,7 +2,7 @@
 # nekozame-setup: setting up nekozame os for your user. opens by itself on the first
 # login; run it again any time with ujust nekozame-setup. what's done stays done.
 #   on for everyone: zen with the privacy extensions, tailscale, sunshine,
-#   doom emacs, the theme and wallpaper
+#   doom emacs, the theme and wallpaper, and the theme in zen, discord and bitwig
 #   asked: logging in automatically, evil mode or another editor, music
 #   production, helium
 set -uo pipefail
@@ -101,6 +101,9 @@ if command -v yabridgectl >/dev/null || [ -x "$HOME/.local/bin/yabridgectl" ]; t
 elif ask "Set up music production? (DAWs, plugins, Windows plugins)" false; then
     nekozame-music
 fi
+
+step "nekozame in your apps: Zen, Discord, Bitwig"
+nekozame-apps-theme
 
 step "Helium (a second browser, optional)"
 if [ -x "$HOME/.local/bin/helium" ]; then

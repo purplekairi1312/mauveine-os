@@ -1,0 +1,106 @@
+#!/bin/bash
+# nekozame-apps-theme [zen|discord|bitwig]: the nekozame look in apps that keep it in
+# your profile or need a little patching. all three without an argument.
+#   zen:     see-through toolbars, and pages, github and youtube in nekozame
+#   discord: the official app, through vencord
+#   bitwig:  the native one (ujust nekozame-music), through the bitwig theme editor
+# run it again after discord or bitwig update. flatpak apps can't see /usr/share,
+# so the theme files are copied in, not linked; your own versions of them are kept.
+set -uo pipefail
+T=/usr/share/nekozame-os
+SHARE="$HOME/.local/share/nekozame"
+ok() { echo "  ✓ $*"; }
+note() { echo "  · $*"; }
+# copy FILE to TARGET unless TARGET is someone's own file (ours start with MARKER)
+put() {  # put FILE TARGET MARKER
+    if [ ! -e "$2" ] || grep -qs -- "$3" "$2"; then mkdir -p "$(dirname "$2")"; cp "$1" "$2"
+    else note "${2/#$HOME/~} is yours, kept"; fi
+}
+
+zen() {
+    local found="" prof pref
+    for prof in "$HOME/.var/app/app.zen_browser.zen/.zen"/*/; do
+        [ -f "$prof/prefs.js" ] || continue
+        found=1
+        put "$T/zen/userChrome.css" "$prof/chrome/userChrome.css" "nekozame for zen"
+        put "$T/zen/userContent.css" "$prof/chrome/userContent.css" "nekozame for web pages"
+        for pref in toolkit.legacyUserProfileCustomizations.stylesheets browser.tabs.allow_transparent_browser; do
+            grep -qs "\"$pref\"" "$prof/user.js" || echo "user_pref(\"$pref\", true);" >> "$prof/user.js"
+        done
+    done
+    if [ -z "$found" ]; then note "open Zen once, then run this again"; return; fi
+    # dark reader and improvedtube only take their settings from an import
+    mkdir -p "$HOME/Downloads"
+    cp "$T/darkreader/nekozame.json" "$HOME/Downloads/nekozame-darkreader.json"
+    cp "$T/improvedtube/nekozame.json" "$HOME/Downloads/nekozame-improvedtube.json"
+    ok "zen (restart it). import from ~/Downloads, just once:"
+    echo "    Dark Reader: Settings → Advanced → Import Settings → nekozame-darkreader.json"
+    echo "    ImprovedTube (YouTube): Settings → Backup & Reset → Import settings → nekozame-improvedtube.json"
+}
+
+discord() {
+    local res vc tmp
+    if flatpak info com.discordapp.Discord >/dev/null 2>&1; then
+        res=$(flatpak info --show-location com.discordapp.Discord)/files/discord/resources
+        vc="$HOME/.var/app/com.discordapp.Discord/config/Vencord"
+    else
+        note "no Discord: install it (flatpak install flathub com.discordapp.Discord), then run this again"
+        return
+    fi
+    if [ ! -f "$res/_app.asar" ]; then
+        # vencord goes into the official app; it's the system's flatpak, so it asks
+        # for your password
+        flatpak kill com.discordapp.Discord 2>/dev/null || true
+        tmp=$(mktemp -d)
+        curl -fsSL -o "$tmp/vencord" https://github.com/Vendicated/VencordInstaller/releases/latest/download/VencordInstallerCli-linux \
+            && chmod +x "$tmp/vencord" \
+            && sudo "$tmp/vencord" -install -branch auto </dev/null >/dev/null \
+            || { note "vencord didn't install: run this again"; rm -rf "$tmp"; return; }
+        rm -rf "$tmp"
+    fi
+    put "$T/discord/nekozame.theme.css" "$vc/themes/nekozame.theme.css" "@name nekozame"
+    # turned on, next to any other themes you have on
+    mkdir -p "$vc/settings"
+    python3 - "$vc/settings/settings.json" <<'PY'
+import json, os, sys
+p = sys.argv[1]
+s = json.load(open(p)) if os.path.exists(p) else {}
+t = s.setdefault("enabledThemes", [])
+if "nekozame.theme.css" not in t:
+    t.append("nekozame.theme.css")
+json.dump(s, open(p, "w"), indent=4)
+PY
+    ok "discord, with vencord and the nekozame theme on (restart it)"
+}
+
+bitwig() {
+    local b="$HOME/.local/opt/bitwig-studio" ver jar
+    if [ ! -f "$b/bin/bitwig.jar" ]; then
+        if flatpak info com.bitwig.BitwigStudio >/dev/null 2>&1; then
+            note "the Bitwig flatpak can't be themed (its files are read-only):"
+            note "ujust nekozame-music installs the native one, which can"
+        fi
+        return
+    fi
+    if pgrep -f "$b/" >/dev/null; then note "Bitwig is open: close it and run this again"; return; fi
+    ver=$(cat "$b/.version")
+    # the bitwig theme editor patches bitwig once per version, so it reads its colours
+    # from ~/.bitwig-theme-editor (its newest build, pre-releases too: they keep up)
+    jar=$(curl -fsSL https://api.github.com/repos/Berikai/bitwig-theme-editor/releases | python3 -c '
+import json, sys
+for r in json.load(sys.stdin):
+    for a in r["assets"]:
+        if a["name"].endswith(".jar"):
+            print(a["browser_download_url"]); sys.exit()')
+    mkdir -p "$SHARE"
+    curl -fsSL -o "$SHARE/bitwig-theme-editor.jar" "$jar" || { note "couldn't get the theme editor: run this again"; return; }
+    # bitwig brings its own java
+    (cd "$SHARE" && "$b/lib/jre/bin/java" -Djava.awt.headless=true -jar bitwig-theme-editor.jar "$b/bin/bitwig.jar" </dev/null >/dev/null) \
+        || { note "the theme editor couldn't patch Bitwig $ver"; return; }
+    put "$T/bitwig/nekozame.bte" "$HOME/.bitwig-theme-editor/versions/$ver/theme.bte" "nekozame for bitwig"
+    ok "bitwig $ver"
+}
+
+for a in ${@:-zen discord bitwig}; do
+    case "$a" in zen|discord|bitwig) "$a" ;; *) echo "nekozame-apps-theme [zen|discord|bitwig]" >&2; exit 1 ;; esac
+done

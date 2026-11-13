@@ -105,6 +105,12 @@ install -Dm0644 "$T/cava/config" /usr/share/nekozame-os/cava/config
 install -Dm0644 "$T/palettes/nekozame.gpl" /usr/share/nekozame-os/nekozame.gpl
 install -Dm0644 "$T/dms/nekozame.json" /usr/share/nekozame-os/dms/nekozame.json
 install -Dm0644 "$T/darkreader/nekozame.json" /usr/share/nekozame-os/darkreader/nekozame.json
+# for nekozame-apps-theme: zen's look, youtube (improvedtube), discord (vencord), bitwig
+install -Dm0644 "$T/zen/userChrome.css" /usr/share/nekozame-os/zen/userChrome.css
+install -Dm0644 "$T/zen/userContent.css" /usr/share/nekozame-os/zen/userContent.css
+install -Dm0644 "$T/improvedtube/nekozame.json" /usr/share/nekozame-os/improvedtube/nekozame.json
+install -Dm0644 "$T/discord/nekozame.theme.css" /usr/share/nekozame-os/discord/nekozame.theme.css
+install -Dm0644 "$T/bitwig/nekozame.bte" /usr/share/nekozame-os/bitwig/nekozame.bte
 install -Dm0644 "$T/emacs/nekozame-theme.el" /usr/share/nekozame-os/emacs/nekozame-theme.el
 rm -rf /tmp/nekozame-theme-main
 

@@ -30,6 +30,11 @@ nekozame-doom FLAG="":
 nekozame-autologin ACTION="status":
     /usr/bin/nekozame-autologin {{ ACTION }}
 
+# The nekozame look in Zen, Discord (Vencord) and Bitwig; again after Discord or Bitwig update
+[group('nekozame')]
+nekozame-apps-theme APPS="":
+    /usr/bin/nekozame-apps-theme {{ APPS }}
+
 # Animated catshark wallpaper, with the nekozame logo small (default), big or none (just the catshark); stop turns it off
 [group('nekozame')]
 nekozame-wallpaper VARIANT="small":
