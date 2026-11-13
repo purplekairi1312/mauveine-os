@@ -44,13 +44,18 @@ def main():
         return f"\033Ptmux;{cmd.replace(chr(27), chr(27) * 2)}\033\\" if in_tmux else cmd
     payload = base64.b64encode(data).decode()
     chunks = [payload[i:i + 4096] for i in range(0, len(payload), 4096)]
-    with open("/dev/tty", "w") as tty:
-        for n, chunk in enumerate(chunks):
-            more = 1 if n < len(chunks) - 1 else 0
-            if n == 0:  # transmit, with a virtual placement shown by the characters
-                tty.write(apc(f"a=T,U=1,f=100,q=2,i={image_id},c={cols},r={rows},m={more};{chunk}"))
-            else:
-                tty.write(apc(f"m={more};{chunk}"))
+    try:
+        tty = open("/dev/tty", "w")
+    except OSError:  # no terminal (a build, a pipe): only the characters
+        tty = None
+    if tty:
+        with tty:
+            for n, chunk in enumerate(chunks):
+                more = 1 if n < len(chunks) - 1 else 0
+                if n == 0:  # transmit, with a virtual placement shown by the characters
+                    tty.write(apc(f"a=T,U=1,f=100,q=2,i={image_id},c={cols},r={rows},m={more};{chunk}"))
+                else:
+                    tty.write(apc(f"m={more};{chunk}"))
     # the characters that show it, coloured with the image's id
     if not os.path.exists(out):
         r, g, b = image_id >> 16, (image_id >> 8) & 255, image_id & 255
