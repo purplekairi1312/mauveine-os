@@ -3,6 +3,9 @@
 # niri's stock one (waybar, alacritty), plus the one-time nekozame dms defaults
 set -euo pipefail
 dms setup headless --compositor niri --no-systemd
+# nekozame's shortcuts instead of dms's (Super for apps, Ctrl+Alt for windows)
+sed -i 's|^include optional=true "dms/binds.kdl"|include "/usr/share/nekozame-os/niri/binds.kdl"  // nekozame shortcuts (was dms/binds.kdl)|' \
+    "${XDG_CONFIG_HOME:-$HOME/.config}/niri/config.kdl"
 cat >> "${XDG_CONFIG_HOME:-$HOME/.config}/niri/config.kdl" <<'KDL'
 
 // nekozame os: theme + wallpaper in dms, once (nekozame-dms-defaults)

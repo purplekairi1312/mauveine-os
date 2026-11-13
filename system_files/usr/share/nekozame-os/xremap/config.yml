@@ -1,0 +1,48 @@
+# nekozame os: Super works like Cmd on a Mac. xremap turns Super+key into the key
+# each app expects: Ctrl in apps, Ctrl+Shift in terminals (so Ctrl+C there still
+# stops a program). emacs is left alone: doom binds Super+C/V/X itself, and Ctrl+C
+# stays emacs's prefix. Super+T, Super+Q, Super+E, Super+B and the rest of the
+# Super shortcuts are niri's (see ../niri/binds.kdl). your own: ~/.config/nekozame/keys.yml
+keymap:
+  - name: terminals
+    application:
+      only: [com.mitchellh.ghostty, org.kde.konsole, foot, kitty, Alacritty]
+    remap:
+      Super-c: C-Shift-c
+      Super-v: C-Shift-v
+      Super-f: C-Shift-f
+      Super-w: C-Shift-w
+      Super-n: C-Shift-n
+      Super-a: C-Shift-a
+
+  - name: apps
+    application:
+      not: [com.mitchellh.ghostty, org.kde.konsole, foot, kitty, Alacritty, emacs, Emacs]
+    remap:
+      Super-c: C-c
+      Super-v: C-v
+      Super-x: C-x
+      Super-z: C-z
+      Super-Shift-z: C-Shift-z
+      Super-a: C-a
+      Super-s: C-s
+      Super-Shift-s: C-Shift-s
+      Super-f: C-f
+      Super-w: C-w
+      Super-Shift-t: C-Shift-t
+      Super-n: C-n
+      Super-r: C-r
+      Super-l: C-l
+      Super-p: C-p
+      Super-o: C-o
+      Super-equal: C-equal
+      Super-minus: C-minus
+      Super-0: C-0
+      # text, like a Mac: Super+arrows jump to line and document ends
+      Super-left: home
+      Super-right: end
+      Super-up: C-home
+      Super-down: C-end
+      Super-Shift-left: Shift-home
+      Super-Shift-right: Shift-end
+      Super-backspace: [Shift-home, backspace]

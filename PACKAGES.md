@@ -12,6 +12,7 @@
 - [Doom Emacs](https://github.com/doomemacs/doomemacs) (`$EDITOR`)
 - [Zen](https://zen-browser.app) (browser)
 - [Helium](https://helium.computer) (browser, optional)
+- [xremap](https://github.com/xremap/xremap) (Super works like Cmd on a Mac: Super+C/V/X in every app)
 - [gum](https://github.com/charmbracelet/gum) (the setup's menus)
 
 On the Steam Deck image, Desktop Mode is [KDE Plasma](https://kde.org/plasma-desktop/) and niri is optional.

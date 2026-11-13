@@ -1,0 +1,11 @@
+[Unit]
+Description=nekozame keys: Super works like Cmd (xremap)
+PartOf=graphical-session.target
+After=graphical-session.target
+# it reads the keyboard: only for people in the input group (nekozame-setup adds you)
+ConditionGroup=input
+
+[Service]
+ExecStart=/bin/sh -c 'c=%h/.config/nekozame/keys.yml; [ -s "$c" ] || c=/usr/share/nekozame-os/xremap/config.yml; exec /usr/bin/xremap --watch=device "$c"'
+Restart=on-failure
+RestartSec=2

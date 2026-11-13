@@ -1,0 +1,20 @@
+#!/bin/bash
+# nekozame-keys: the nekozame shortcuts for your user. Super works like Cmd on a
+# Mac (Super+C/V/X... in every app), Ctrl+Alt moves windows (niri), the same as
+# nekozame-mac. switches niri from dankmaterialshell's binds to nekozame's, and
+# adds you to the input group xremap needs to read the keyboard.
+set -euo pipefail
+C="${XDG_CONFIG_HOME:-$HOME/.config}/niri/config.kdl"
+NZ=/usr/share/nekozame-os/niri/binds.kdl
+if [ -f "$C" ] && grep -q '"dms/binds.kdl"' "$C"; then
+    sed -i "s|^include optional=true \"dms/binds.kdl\"|include \"$NZ\"  // nekozame shortcuts (was dms/binds.kdl)|" "$C"
+    echo "niri: nekozame shortcuts"
+fi
+if ! id -nG | grep -qw input; then
+    # on an image-based system the group lives in /usr/lib/group until it's copied over
+    grep -q '^input:' /etc/group || grep '^input:' /usr/lib/group | sudo tee -a /etc/group >/dev/null
+    sudo usermod -aG input "$USER"
+    echo "added to the input group: log out and back in for Super+C/V/X"
+else
+    systemctl --user restart nekozame-keys.service 2>/dev/null || true
+fi

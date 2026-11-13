@@ -69,6 +69,17 @@ ln -sf /usr/lib/systemd/user/dms.service /etc/systemd/user/niri.service.wants/dm
 ln -sf /usr/lib/systemd/user/nekozame-niri-config.service \
     /etc/systemd/user/niri.service.wants/nekozame-niri-config.service
 
+### xremap: Super works like Cmd on a Mac (Super+C/V/X...), app by app; the niri
+### build knows which window is focused. config in system_files/usr/share/nekozame-os/xremap
+# renovate: datasource=github-releases depName=xremap/xremap
+XREMAP=v0.15.18
+retry curl -fsSL -o /tmp/xremap.zip \
+    "https://github.com/xremap/xremap/releases/download/${XREMAP}/xremap-linux-x86_64-niri.zip"
+python3 -m zipfile -e /tmp/xremap.zip /tmp/xremap
+install -m 0755 /tmp/xremap/xremap /usr/bin/xremap
+rm -rf /tmp/xremap /tmp/xremap.zip
+ln -sf /usr/lib/systemd/user/nekozame-keys.service /etc/systemd/user/niri.service.wants/nekozame-keys.service
+
 ### yazi, the terminal file manager (not in fedora): the official release build
 # renovate: datasource=github-releases depName=sxyazi/yazi
 YAZI=v26.9.1

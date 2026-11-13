@@ -40,6 +40,11 @@ nekozame-wallpaper VARIANT="small":
 nekozame-sunshine:
     /usr/bin/nekozame-sunshine
 
+# The nekozame shortcuts: Super like Cmd (copy, paste...), Ctrl+Alt for windows
+[group('nekozame')]
+nekozame-keys:
+    /usr/bin/nekozame-keys
+
 # Install the Helium browser (optional), or update it
 [group('nekozame')]
 nekozame-helium:

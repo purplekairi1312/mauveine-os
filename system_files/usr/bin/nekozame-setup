@@ -31,6 +31,12 @@ if ! ask "Set up now? (later: ujust nekozame-setup)"; then
     touch "$DONE"; exit 0
 fi
 
+step "Shortcuts"
+if [ -f /etc/greetd/config.toml ]; then
+    nekozame-keys
+    echo "  Super works like Cmd (Super+C/V/X), Ctrl+Alt moves windows. Super+Shift+/ shows them all"
+fi
+
 step "Zen browser"
 if flatpak info app.zen_browser.zen >/dev/null 2>&1; then
     ok "installed"

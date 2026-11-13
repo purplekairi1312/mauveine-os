@@ -5,6 +5,7 @@
 Opinionated immutable distro.
 
 - [niri](https://github.com/niri-wm/niri) with [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell), login screen included
+- Mac-style keys: Super works like Cmd (Super+C/V/X to copy and paste, Super+Q to close), Ctrl+Alt moves windows. The same on a Mac with [nekozame-mac](https://git.sr.ht/~purplekairi1312/nekozame-mac). Super+Shift+/ shows them all
 - Gaming and emulation tools (and NVIDIA drivers on the NVIDIA image)
 - Doom Emacs as `$EDITOR`, always running as a daemon, emacs keys (evil mode or another editor if you want)
 - Low-latency audio with realtime priority for everyone, and music production on request: Bitwig, Reaper or Renoise (proprietary, paid), Ardour or LMMS (free software), a checklist of about 700 plugins from Audinux that every DAW finds, and yabridge for Microsoft Windows plugins
