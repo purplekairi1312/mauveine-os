@@ -16,7 +16,7 @@ if [ ! -d "$DOOM/.git" ]; then
     git clone --depth 1 https://github.com/doomemacs/doomemacs "$DOOM"
     "$DOOM/bin/doom" install --force
     if [ -n "$fresh" ]; then
-        # the nekozame theme, from the image
+        # the nekozame theme and logo, from the image
         # Super like Cmd on a Mac, as in every other app (doom does this on macs)
         cat >> "$DOOMDIR/config.el" <<'EL'
 
@@ -25,7 +25,7 @@ if [ ! -d "$DOOM/.git" ]; then
       "s-z" #'undo "s-Z" #'undo-redo "s-a" #'mark-whole-buffer
       "s-s" #'save-buffer "s-f" #'isearch-forward "s-w" #'kill-current-buffer)
 EL
-        sed -i "s|^(setq doom-theme 'doom-one)|(add-to-list 'custom-theme-load-path \"/usr/share/nekozame-os/emacs/\")\n(setq doom-theme 'nekozame)|" \
+        sed -i "s|^(setq doom-theme 'doom-one)|(add-to-list 'custom-theme-load-path \"/usr/share/nekozame-os/emacs/\")\n(setq doom-theme 'nekozame)\n(setq fancy-splash-image \"/usr/share/nekozame-os/emacs/banner.png\")|" \
             "$DOOMDIR/config.el"
     fi
 fi
