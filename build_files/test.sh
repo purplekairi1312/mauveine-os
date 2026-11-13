@@ -5,7 +5,9 @@ set -uo pipefail
 V="${VARIANT:-amd}"
 fail=0
 check() {  # check "what" 'command'
-    if bash -c "$2" >/dev/null 2>&1; then echo "ok    $1"; else echo "FAIL  $1"; fail=1; fi
+    local out
+    if out=$(bash -c "$2" 2>&1); then echo "ok    $1"
+    else echo "FAIL  $1"; printf '%s\n' "$out" | tail -5 | sed 's/^/      /'; fail=1; fi
 }
 
 check "sunshine, with the screen capture right" 'getcap "$(readlink -f /usr/bin/sunshine)" | grep -q cap_sys_admin'
