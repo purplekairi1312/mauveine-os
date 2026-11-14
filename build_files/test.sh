@@ -20,6 +20,7 @@ check "native bitwig's libraries" 'test -e /usr/lib64/libxcb-icccm.so.4 && test 
 check "plugin folders for every daw" 'test -L /usr/lib/vst3/lib64 && test -L /usr/lib/clap/lib64 && test -L /usr/lib/vst/lib64 && grep -q LV2_PATH /usr/lib/environment.d/60-nekozame-plugins.conf'
 check "wine" 'command -v wine'
 check "realtime audio for everyone" 'test -f /etc/security/limits.d/95-nekozame-audio.conf'
+check "game mode's videos are nekozame's" 'cmp -s /usr/share/nekozame-os/steam/startup.webm /usr/share/ublue-os/bazzite/bazzite.webm && grep -q nekozame-steam-videos /usr/bin/steam-tweaks && test -x /usr/libexec/nekozame-steam-videos'
 check "first-login setup" 'test -x /usr/bin/nekozame-setup && test -f /etc/xdg/autostart/nekozame-setup.desktop && command -v gum'
 check "emacs and cava themes" 'test -s /usr/share/nekozame-os/emacs/nekozame-theme.el && test -s /usr/share/nekozame-os/cava/config'
 check "browser policies" 'jq -e ".policies.ExtensionSettings[\"uBlock0@raymondhill.net\"]" /usr/share/nekozame-os/zen/policies/policies.json && jq -e .WebRtcIPHandling /etc/chromium/policies/managed/nekozame.json'

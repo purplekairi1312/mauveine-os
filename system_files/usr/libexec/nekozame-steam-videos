@@ -1,0 +1,20 @@
+#!/bin/bash
+# game mode's startup and suspend videos. bazzite's steam-tweaks copies the
+# image's videos into steam before it starts, but only where there's none yet.
+# this runs just before it and clears out copies of bazzite's own videos (known
+# by their checksums) and links that lead nowhere, so nekozame's take their
+# place. a video you picked yourself stays.
+D="$HOME/.local/share/Steam/config/uioverrides/movies"
+[ -d "$D" ] || exit 0
+BAZZITE=" 3b7402b1b5ed2db218b5e0ad9517c359ddb15f21dddbb36cbae43fc6cd093021
+ 612e01f2d5430eea98e5da7f9350ae42a2c79f70f533518f104c7187a0814925
+ 61301a6ace3171b762dc34cbb70c9e126af8b249ca2790b1641603cd28c89a73
+ b170b9c60fac4249de4f1d342858f15991541804b85d6db2c3e29e4038170d1a "
+for f in "$D"/*.webm; do
+    if [ -L "$f" ] && [ ! -e "$f" ]; then
+        rm -f "$f"
+    elif [ -f "$f" ]; then
+        case "$BAZZITE" in *" $(sha256sum "$f" | cut -d' ' -f1)"[[:space:]]*) rm -f "$f" ;; esac
+    fi
+done
+exit 0

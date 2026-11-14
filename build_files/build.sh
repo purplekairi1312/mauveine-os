@@ -183,6 +183,18 @@ setcap cap_sys_admin+p "$(readlink -f /usr/bin/sunshine)"
 ### bazzite branding) and the ones nekozame os wraps under its own names
 python3 /ctx/hide-recipes.py /usr/share/ublue-os/just "${VARIANT:-amd}"
 
+### Game mode's startup and suspend videos: the same underwater loop, in place of
+### bazzite's. steam-tweaks copies them into steam where there's none yet; just
+### before it, nekozame-steam-videos clears out copies of bazzite's own
+for v in bazzite bazzite-oled; do
+    install -m0644 /usr/share/nekozame-os/steam/startup.webm "/usr/share/ublue-os/bazzite/$v.webm"
+done
+for v in bazzite-suspend bazzite-suspend-oled; do
+    install -m0644 /usr/share/nekozame-os/steam/suspend.webm "/usr/share/ublue-os/bazzite/$v.webm"
+done
+grep -q '^if ! \$SKIP_VIDEOS; then' /usr/bin/steam-tweaks
+sed -i 's|^if ! \$SKIP_VIDEOS; then|/usr/libexec/nekozame-steam-videos\n&|' /usr/bin/steam-tweaks
+
 ### Boot screen: the nekozame underwater loop (Plymouth theme in system_files),
 ### baked into the initramfs so it shows from the very start of boot.
 retry dnf5 -y install plymouth-plugin-script  # the theme is a plymouth script
